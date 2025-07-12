@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
@@ -43,21 +44,44 @@ const Contact = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the form data to your backend
-    console.log('Form submitted:', formData);
-    setIsSubmitted(true);
-    
-    // Reset form after a delay
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        service: '',
-        message: ''
-      });
-    }, 3000);
+    submitContactForm();
+  };
+
+  const submitContactForm = async () => {
+    try {
+      const { error } = await supabase
+        .from('service_requests')
+        .insert([
+          {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone || null,
+            service: formData.service,
+            message: formData.message,
+            urgency: 'normal',
+            status: 'pending'
+          }
+        ]);
+
+      if (error) throw error;
+
+      setIsSubmitted(true);
+      
+      // Reset form after a delay
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          service: '',
+          message: ''
+        });
+      }, 3000);
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
+      alert('There was an error submitting your message. Please try again.');
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

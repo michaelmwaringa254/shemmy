@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { supabase } from '../lib/supabase';
 import { 
   Globe, 
   Database, 
@@ -135,26 +136,46 @@ const Services = () => {
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the form data to your backend
-    console.log('Service request submitted:', {
-      service: services[requestServiceIndex!].title,
-      ...formData
-    });
-    setIsSubmitted(true);
-    
-    // Reset form after a delay
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setShowRequestForm(false);
-      setRequestServiceIndex(null);
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        message: '',
-        urgency: 'normal'
-      });
-    }, 3000);
+    submitServiceRequest();
+  };
+
+  const submitServiceRequest = async () => {
+    try {
+      const { error } = await supabase
+        .from('service_requests')
+        .insert([
+          {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone || null,
+            service: services[requestServiceIndex!].title,
+            message: formData.message,
+            urgency: formData.urgency,
+            status: 'pending'
+          }
+        ]);
+
+      if (error) throw error;
+
+      setIsSubmitted(true);
+      
+      // Reset form after a delay
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setShowRequestForm(false);
+        setRequestServiceIndex(null);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          message: '',
+          urgency: 'normal'
+        });
+      }, 3000);
+    } catch (error) {
+      console.error('Error submitting service request:', error);
+      alert('There was an error submitting your request. Please try again.');
+    }
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
