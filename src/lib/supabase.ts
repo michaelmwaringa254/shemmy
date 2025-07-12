@@ -21,4 +21,4 @@ export interface ServiceRequest {
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   created_at: string;
   updated_at: string;
-}</parameter>
+}
