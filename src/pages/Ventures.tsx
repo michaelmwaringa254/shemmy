@@ -14,7 +14,7 @@ const Ventures = () => {
   const ventures = [
     {
       name: "Acadeemia",
-      url: "www.acadeemia.com",
+      url: "acadeemia.com",
       description: "Educational technology platform connecting students with quality learning resources and expert tutors.",
       icon: <Users className="w-8 h-8" />,
       color: "from-blue-500 to-blue-600",
@@ -23,7 +23,7 @@ const Ventures = () => {
     },
     {
       name: "WorkCrux",
-      url: "www.workcrux.io",
+      url: "workcrux.io",
       description: "Professional networking and career development platform for modern professionals.",
       icon: <TrendingUp className="w-8 h-8" />,
       color: "from-purple-500 to-purple-600",
@@ -32,7 +32,7 @@ const Ventures = () => {
     },
     {
       name: "WhatsClick",
-      url: "www.whatsclick.icu",
+      url: "whatsclick.icu",
       description: "Innovative communication and engagement platform for businesses and communities.",
       icon: <Globe className="w-8 h-8" />,
       color: "from-green-500 to-green-600",
@@ -41,7 +41,7 @@ const Ventures = () => {
     },
     {
       name: "TheTechsWay",
-      url: "www.thetechsway.com",
+      url: "thetechsway.com",
       description: "Technology consulting and solutions provider for businesses seeking digital transformation.",
       icon: <Globe className="w-8 h-8" />,
       color: "from-orange-500 to-orange-600",
@@ -50,7 +50,7 @@ const Ventures = () => {
     },
     {
       name: "ShoeFlicker",
-      url: "www.shoeflicker.com",
+      url: "shoeflicker.com",
       description: "Premium footwear marketplace connecting shoe enthusiasts with exclusive and trendy footwear collections.",
       icon: <ShoppingBag className="w-8 h-8" />,
       color: "from-red-500 to-red-600",
@@ -59,7 +59,7 @@ const Ventures = () => {
     },
     {
       name: "MyRentalZone",
-      url: "www.myrentalzone.com",
+      url: "myrentalzone.com",
       description: "Comprehensive rental management platform for property owners and tenants.",
       icon: <Home className="w-8 h-8" />,
       color: "from-indigo-500 to-indigo-600",
@@ -68,7 +68,7 @@ const Ventures = () => {
     },
     {
       name: "MyTabibu",
-      url: "www.mytabibu.com",
+      url: "mytabibu.com",
       description: "Digital healthcare platform connecting patients with qualified medical professionals.",
       icon: <Heart className="w-8 h-8" />,
       color: "from-pink-500 to-pink-600",
@@ -77,7 +77,7 @@ const Ventures = () => {
     },
     {
       name: "MyStoko",
-      url: "www.mystoko.com",
+      url: "mystoko.com",
       description: "Inventory management and stock control system for businesses of all sizes.",
       icon: <Package className="w-8 h-8" />,
       color: "from-teal-500 to-teal-600",
