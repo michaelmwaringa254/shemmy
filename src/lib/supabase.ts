@@ -25,3 +25,12 @@ export interface ServiceRequest {
   created_at: string;
   updated_at: string;
 }
+
+export interface NewsletterSubscription {
+  id: string;
+  email: string;
+  name?: string;
+  status: 'active' | 'unsubscribed';
+  created_at: string;
+  updated_at: string;
+}

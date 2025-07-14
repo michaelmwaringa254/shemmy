@@ -1,6 +1,7 @@
 import React from 'react';
 import { Mail, Phone, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import NewsletterSignup from './NewsletterSignup';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -102,7 +103,7 @@ const Footer = () => {
           ))}
 
           {/* Quick Links */}
-          <div className="space-y-4">
+          <div className="space-y-4 lg:col-span-1">
             <h3 className="text-lg font-semibold text-orange-500">Quick Links</h3>
             <ul className="space-y-2">
               <li>
@@ -142,6 +143,11 @@ const Footer = () => {
                 </Link>
               </li>
             </ul>
+          </div>
+
+          {/* Newsletter Signup */}
+          <div className="lg:col-span-1">
+            <NewsletterSignup variant="footer" />
           </div>
 
         </div>

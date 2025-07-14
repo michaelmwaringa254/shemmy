@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, Globe, User, Briefcase, Building, Mail } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import NewsletterSignup from '../components/NewsletterSignup';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -173,6 +174,13 @@ const Home = () => {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Newsletter Signup Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <NewsletterSignup variant="inline" />
         </div>
       </section>
 
