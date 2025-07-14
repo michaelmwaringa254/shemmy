@@ -1,27 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, ServiceRequest } from '../lib/supabase';
-import { 
-  LogOut, 
-  Users, 
-  Clock, 
-  CheckCircle, 
-  XCircle,
-  Search,
-  Filter,
-  Eye,
-  Edit,
-  Trash2,
-  Mail,
-  Phone,
-  Calendar,
-  AlertCircle,
-  TrendingUp,
-  LayoutDashboard,
-  FileText,
-  MessageSquare,
-  Newsletter
-} from 'lucide-react';
+import { LogOut, Users, Clock, CheckCircle, XCircle, Search, Filter, Eye, Edit, Trash2, Mail, Phone, Calendar, AlertCircle, TrendingUp, LayoutDashboard, FileText, MessageSquare, Palette as Newsletter } from 'lucide-react';
 
 interface NewsletterSubscription {
   id: string;
