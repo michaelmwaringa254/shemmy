@@ -34,6 +34,11 @@ const Dashboard = () => {
 
   const fetchServiceRequests = async () => {
     try {
+      if (!supabase) {
+        console.error('Supabase client not initialized');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('service_requests')
         .select('*')
@@ -43,6 +48,10 @@ const Dashboard = () => {
       setServiceRequests(data || []);
     } catch (error) {
       console.error('Error fetching service requests:', error);
+      // Show user-friendly error message
+      if (error.message?.includes('JWT')) {
+        alert('Session expired. Please log in again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -50,6 +59,10 @@ const Dashboard = () => {
 
   const updateRequestStatus = async (id: string, status: string) => {
     try {
+      if (!supabase) {
+        throw new Error('Database connection not available');
+      }
+
       const { error } = await supabase
         .from('service_requests')
         .update({ status })
@@ -63,6 +76,7 @@ const Dashboard = () => {
       );
     } catch (error) {
       console.error('Error updating status:', error);
+      alert('Failed to update status. Please try again.');
     }
   };
 
@@ -70,6 +84,10 @@ const Dashboard = () => {
     if (!confirm('Are you sure you want to delete this request?')) return;
 
     try {
+      if (!supabase) {
+        throw new Error('Database connection not available');
+      }
+
       const { error } = await supabase
         .from('service_requests')
         .delete()
@@ -81,6 +99,7 @@ const Dashboard = () => {
       setShowModal(false);
     } catch (error) {
       console.error('Error deleting request:', error);
+      alert('Failed to delete request. Please try again.');
     }
   };
 

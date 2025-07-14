@@ -141,6 +141,11 @@ const Services = () => {
 
   const submitServiceRequest = async () => {
     try {
+      // Check if Supabase is properly configured
+      if (!supabase) {
+        throw new Error('Database connection not available');
+      }
+
       const { error } = await supabase
         .from('service_requests')
         .insert([
@@ -174,7 +179,19 @@ const Services = () => {
       }, 3000);
     } catch (error) {
       console.error('Error submitting service request:', error);
-      alert('There was an error submitting your request. Please try again.');
+      
+      // More detailed error handling
+      let errorMessage = 'There was an error submitting your request. Please try again.';
+      
+      if (error.message?.includes('JWT')) {
+        errorMessage = 'Authentication error. Please refresh the page and try again.';
+      } else if (error.message?.includes('connection')) {
+        errorMessage = 'Connection error. Please check your internet connection.';
+      } else if (error.message?.includes('permission')) {
+        errorMessage = 'Permission error. The service is temporarily unavailable.';
+      }
+      
+      alert(errorMessage);
     }
   };
 

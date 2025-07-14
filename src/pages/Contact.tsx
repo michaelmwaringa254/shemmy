@@ -49,6 +49,11 @@ const Contact = () => {
 
   const submitContactForm = async () => {
     try {
+      // Check if Supabase is properly configured
+      if (!supabase) {
+        throw new Error('Database connection not available');
+      }
+
       const { error } = await supabase
         .from('service_requests')
         .insert([
@@ -80,7 +85,19 @@ const Contact = () => {
       }, 3000);
     } catch (error) {
       console.error('Error submitting contact form:', error);
-      alert('There was an error submitting your message. Please try again.');
+      
+      // More detailed error handling
+      let errorMessage = 'There was an error submitting your message. Please try again.';
+      
+      if (error.message?.includes('JWT')) {
+        errorMessage = 'Authentication error. Please refresh the page and try again.';
+      } else if (error.message?.includes('connection')) {
+        errorMessage = 'Connection error. Please check your internet connection.';
+      } else if (error.message?.includes('permission')) {
+        errorMessage = 'Permission error. The service is temporarily unavailable.';
+      }
+      
+      alert(errorMessage);
     }
   };
 
