@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, ServiceRequest } from '../lib/supabase';
-import { LogOut, Users, Clock, CheckCircle, XCircle, Search, Filter, Eye, Edit, Trash2, Mail, Phone, Calendar, AlertCircle, TrendingUp, LayoutDashboard, FileText, MessageSquare, Palette as Newsletter } from 'lucide-react';
+import { LogOut, Users, Clock, CheckCircle, XCircle, Search, Filter, Eye, Edit, Trash2, Mail, Phone, Calendar, AlertCircle, TrendingUp, LayoutDashboard, FileText, MessageSquare, Palette as Newsletter, Settings } from 'lucide-react';
+import CMSManager from '../components/CMSManager';
 
 interface NewsletterSubscription {
   id: string;
@@ -27,6 +29,7 @@ interface ContactMessage {
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
@@ -36,6 +39,11 @@ const Dashboard = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | ContactMessage | null>(null);
   const [showModal, setShowModal] = useState(false);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   useEffect(() => {
     fetchAllData();
@@ -209,6 +217,7 @@ const Dashboard = () => {
     { id: 'service-requests', label: 'Service Requests', icon: <FileText className="w-5 h-5" /> },
     { id: 'contact', label: 'Contact Messages', icon: <MessageSquare className="w-5 h-5" /> },
     { id: 'newsletter', label: 'Newsletter Subscriptions', icon: <Newsletter className="w-5 h-5" /> },
+    { id: 'cms', label: 'CMS Manager', icon: <Settings className="w-5 h-5" /> },
   ];
 
   if (loading) {
@@ -477,12 +486,15 @@ const Dashboard = () => {
           ))}
         </nav>
 
-        <div className="absolute bottom-0 w-64 p-6">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Welcome, {user?.email}</span>
+        <div className="absolute bottom-0 w-64 p-6 border-t border-gray-200">
+          <div className="space-y-3">
+            <div className="text-sm text-gray-600">
+              <div className="font-medium">Welcome,</div>
+              <div className="truncate">{user?.email}</div>
+            </div>
             <button
-              onClick={signOut}
-              className="flex items-center space-x-2 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
+              onClick={handleSignOut}
+              className="w-full flex items-center justify-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
             >
               <LogOut className="w-4 h-4" />
               <span>Sign Out</span>
@@ -496,17 +508,21 @@ const Dashboard = () => {
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 capitalize">
             {activeTab === 'dashboard' ? 'Dashboard Overview' : activeTab.replace('-', ' ')}
+            {activeTab === 'cms' && 'CMS Manager'}
           </h2>
           <p className="text-gray-600">
             {activeTab === 'dashboard' && 'Overview of all your business metrics'}
             {activeTab === 'service-requests' && 'Manage service requests from your website'}
             {activeTab === 'contact' && 'View and respond to contact form submissions'}
             {activeTab === 'newsletter' && 'Manage newsletter subscriptions'}
+            {activeTab === 'cms' && 'Manage website content, images, and sections'}
           </p>
         </div>
 
         {activeTab === 'dashboard' ? (
           renderDashboardOverview()
+        ) : activeTab === 'cms' ? (
+          <CMSManager />
         ) : (
           <div className="space-y-6">
             {/* Filters */}
