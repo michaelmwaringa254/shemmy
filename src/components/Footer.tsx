@@ -53,7 +53,7 @@ const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
           {/* Brand Section */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center space-x-2">
@@ -103,7 +103,7 @@ const Footer = () => {
           ))}
 
           {/* Quick Links */}
-          <div className="space-y-4 lg:col-span-1">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold text-orange-500">Quick Links</h3>
             <ul className="space-y-2">
               <li>
@@ -146,14 +146,13 @@ const Footer = () => {
           </div>
 
           {/* Newsletter Signup */}
-          <div className="lg:col-span-1">
+          <div>
             <NewsletterSignup variant="footer" />
           </div>
-
         </div>
 
         {/* Ventures Section - Moved below main grid */}
-        <div className="mt-12 pt-8 border-t border-gray-800">
+        <div className="mt-8 pt-8 border-t border-gray-800">
           <h3 className="text-lg font-semibold text-orange-500 mb-6 text-center">My Ventures</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
             {ventures.map((venture, index) => (

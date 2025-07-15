@@ -177,13 +177,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Newsletter Signup Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <NewsletterSignup variant="inline" />
-        </div>
-      </section>
-
       {/* Quick Contact CTA */}
       <section className="py-16 bg-gradient-to-r from-orange-500 to-orange-600">
         <div className="container mx-auto px-4 text-center">
