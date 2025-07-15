@@ -46,3 +46,15 @@ export interface NewsletterSubscription {
   created_at: string;
   updated_at: string;
 }
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subject?: string;
+  message: string;
+  status: 'unread' | 'read' | 'replied' | 'archived';
+  created_at: string;
+  updated_at: string;
+}
