@@ -9,45 +9,40 @@ const Contact = () => {
     name: '',
     email: '',
     phone: '',
-    service: '',
+    subject: '',
     message: ''
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const services = [
-    'Website Development',
-    'Data Entry',
-    'Digital Marketing',
-    'Graphics Design',
-    'WordPress Development',
-    'E-commerce Website',
-    'Google Ads Management',
-    'Custom Software Development',
-    'Mobile App Development',
-    'SEO Optimization',
-    'Email Marketing',
-    'Content Creation',
-    'Business Consulting',
-    'System Integration',
-    'Social Media Management'
+  const subjects = [
+    'General Inquiry',
+    'Project Consultation',
+    'Partnership Opportunity',
+    'Technical Support',
+    'Pricing Information',
+    'Custom Quote Request',
+    'Business Collaboration',
+    'Media Inquiry',
+    'Feedback',
+    'Other'
   ];
 
-  // Pre-fill service if coming from services page
+  // Pre-fill subject if coming from services page
   useEffect(() => {
-    if (location.state?.selectedService) {
+    if (location.state?.selectedSubject) {
       setFormData(prev => ({
         ...prev,
-        service: location.state.selectedService
+        subject: location.state.selectedSubject || 'General Inquiry'
       }));
     }
   }, [location.state]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    submitContactForm();
+    submitContactMessage();
   };
 
-  const submitContactForm = async () => {
+  const submitContactMessage = async () => {
     try {
       // Check if Supabase is properly configured
       if (!supabase) {
@@ -55,16 +50,15 @@ const Contact = () => {
       }
 
       const { error } = await supabase
-        .from('service_requests')
+        .from('contact_messages')
         .insert([
           {
             name: formData.name,
             email: formData.email,
             phone: formData.phone || null,
-            service: formData.service,
+            subject: formData.subject,
             message: formData.message,
-            urgency: 'normal',
-            status: 'pending'
+            status: 'unread'
           }
         ]);
 
@@ -79,15 +73,15 @@ const Contact = () => {
           name: '',
           email: '',
           phone: '',
-          service: '',
+          subject: '',
           message: ''
         });
       }, 3000);
     } catch (error) {
-      console.error('Error submitting contact form:', error);
+      console.error('Error submitting contact message:', error);
       
       // More detailed error handling
-      let errorMessage = 'There was an error submitting your message. Please try again.';
+      let errorMessage = 'There was an error submitting your contact message. Please try again.';
       
       if (error.message?.includes('JWT')) {
         errorMessage = 'Authentication error. Please refresh the page and try again.';
@@ -250,21 +244,21 @@ const Contact = () => {
                     </div>
 
                     <div>
-                      <label htmlFor="service" className="block text-sm font-semibold text-gray-700 mb-2">
-                        Service Required *
+                      <label htmlFor="subject" className="block text-sm font-semibold text-gray-700 mb-2">
+                        Subject *
                       </label>
                       <select
-                        id="service"
-                        name="service"
-                        value={formData.service}
+                        id="subject"
+                        name="subject"
+                        value={formData.subject}
                         onChange={handleChange}
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       >
-                        <option value="">Select a service</option>
-                        {services.map((service) => (
-                          <option key={service} value={service}>
-                            {service}
+                        <option value="">Select a subject</option>
+                        {subjects.map((subject) => (
+                          <option key={subject} value={subject}>
+                            {subject}
                           </option>
                         ))}
                       </select>
@@ -272,7 +266,7 @@ const Contact = () => {
 
                     <div>
                       <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
-                        Project Details *
+                        Message *
                       </label>
                       <textarea
                         id="message"
@@ -282,7 +276,7 @@ const Contact = () => {
                         required
                         rows={4}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        placeholder="Tell me about your project requirements..."
+                        placeholder="Tell me about your inquiry or how I can help you..."
                       />
                     </div>
 
