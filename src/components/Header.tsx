@@ -135,8 +135,8 @@ const Header = () => {
             <div className="mt-4 pt-4 border-t border-gray-200 text-sm text-gray-600">
               <div className="flex items-center space-x-1 mb-2">
                 <Mail className="w-4 h-4" />
-                <a href="mailto:info@shemmymae.site" className="hover:text-orange-500 transition-colors">
-                  info@shemmymae.site
+                <a href="mailto:info@shemmymae.space" className="hover:text-orange-500 transition-colors">
+                  info@shemmymae.space
                 </a>
               </div>
               <div className="flex items-center space-x-1">
