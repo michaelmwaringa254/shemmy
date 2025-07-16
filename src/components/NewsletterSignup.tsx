@@ -183,12 +183,12 @@ const NewsletterSignup: React.FC<NewsletterSignupProps> = ({ variant = 'inline',
                 onChange={handleChange}
                 required
                 placeholder="Enter your email"
-                className="flex-1 px-3 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                className="flex-1 px-3 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm min-w-0"
               />
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center min-w-[44px]"
+                className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center w-10 h-10 flex-shrink-0"
               >
                 {isSubmitting ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
