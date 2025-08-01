@@ -222,7 +222,10 @@ const Ventures = () => {
         </div>
       </section>
     </div>
-  );
-};
+      );
+    )
+    };
 
 export default Ventures;
+  )
+}
