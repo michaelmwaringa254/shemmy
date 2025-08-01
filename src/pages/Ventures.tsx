@@ -108,20 +108,7 @@ const Ventures = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
               {ventures.map((venture, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-8 hover:shadow-lg transition-shadow group">
-                  <div className="flex items-start justify-between mb-6">
-                    <div className={`w-16 h-16 bg-gradient-to-r ${venture.color} rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform`}>
-                      {venture.icon}
-                    </div>
-                    <a
-                      href={`https://${venture.url}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-gray-400 hover:text-orange-500 transition-colors"
-                    >
-                      <ExternalLink className="w-5 h-5" />
-                    </a>
-              <div key={index} className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 group">
+                <div key={index} className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 group">
                 {/* Background Image Header */}
                 <div 
                   className="h-48 bg-cover bg-center relative"
@@ -137,7 +124,6 @@ const Ventures = () => {
                     >
                       <ExternalLink className="w-5 h-5" />
                     </a>
-                  <p className="text-gray-600 mb-4 leading-relaxed">{venture.description}</p>
                   {/* Logo positioned at bottom of image */}
                   <div className="absolute -bottom-8 left-6">
                     <div className="w-16 h-16 bg-white rounded-xl shadow-lg p-2 group-hover:scale-110 transition-transform duration-300">
@@ -156,7 +142,6 @@ const Ventures = () => {
                   <p className="text-orange-600 font-semibold mb-4">{venture.url}</p>
                   <p className="text-gray-600 mb-4 leading-relaxed">{venture.description}</p>
                   <p className="text-gray-700 mb-6 text-sm leading-relaxed">{venture.details}</p>
-                  </div>
                   <div className="space-y-3 mb-6">
                     <h4 className="font-semibold text-gray-800 text-sm">Key Features:</h4>
                     <div className="flex flex-wrap gap-2">
@@ -170,6 +155,18 @@ const Ventures = () => {
                       ))}
                     </div>
                   </div>
+                  <div className="pt-4 border-t border-gray-100">
+                    <a
+                      href={`https://${venture.url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center space-x-2 text-orange-500 hover:text-orange-600 font-semibold transition-colors"
+                    >
+                      <span>Visit Website</span>
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
+                </div>
               ))}
             </div>
 
@@ -187,17 +184,16 @@ const Ventures = () => {
                   <p className="text-gray-300">Active Ventures</p>
                 </div>
                 <div>
-                  <div className="pt-4 border-t border-gray-100">
-                    <a
-                      href={`https://${venture.url}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center space-x-2 text-orange-500 hover:text-orange-600 font-semibold transition-colors group-hover:translate-x-1 duration-300"
-                    >
-                      <span>Visit Website</span>
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  </div>
+                  <div className="text-3xl font-bold text-orange-500 mb-2">5+</div>
+                  <p className="text-gray-300">Industries</p>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-orange-500 mb-2">100K+</div>
+                  <p className="text-gray-300">Users Served</p>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-orange-500 mb-2">3+</div>
+                  <p className="text-gray-300">Years Experience</p>
                 </div>
               </div>
             </div>
@@ -209,23 +205,19 @@ const Ventures = () => {
                 Let's collaborate to bring your ideas to life. With my experience in building successful ventures across multiple industries, 
                 I can help you navigate the digital landscape and achieve your business goals.
               </p>
-              <Link
-                to="/contact"
+              <button
+                onClick={handleContactNavigation}
                 className="bg-white text-orange-500 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-colors inline-flex items-center space-x-2"
-               onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
               >
                 <span>Let's Discuss Your Project</span>
                 <ExternalLink className="w-5 h-5" />
-              </Link>
+              </button>
             </div>
           </div>
         </div>
       </section>
     </div>
-      );
-    )
-    };
+  );
+};
 
 export default Ventures;
-  )
-}
