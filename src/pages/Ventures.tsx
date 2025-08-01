@@ -216,6 +216,9 @@ const Ventures = () => {
           </div>
         </div>
       </section>
+    )
+    )
+    }
     </div>
   );
 };
