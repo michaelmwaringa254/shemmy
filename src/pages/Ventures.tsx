@@ -134,8 +134,7 @@ const Ventures = () => {
                       />
                     </div>
                   </div>
-                          className="px-3 py-1 bg-white text-gray-700 rounded-full text-sm border"
-                        >
+                </div>
                 {/* Content Section */}
                 <div className="p-6 pt-12">
                   <h3 className="text-2xl font-bold text-gray-800 mb-2">{venture.name}</h3>
@@ -167,6 +166,7 @@ const Ventures = () => {
                     </a>
                   </div>
                 </div>
+              </div>
               ))}
             </div>
 
@@ -216,9 +216,6 @@ const Ventures = () => {
           </div>
         </div>
       </section>
-    )
-    )
-    }
     </div>
   );
 };
