@@ -126,7 +126,6 @@ const Ventures = () => {
                     <img src={venture.logo} alt={`${venture.name} logo`} className="w-full h-full object-cover rounded-lg"/>
                   </div>
                 </div>
-                <div className="px-3 py-1 bg-white text-gray-700 rounded-full text-sm border"></div> 
 
                 {/* Content Section */}
                 <div className="p-6 pt-12">
@@ -154,6 +153,7 @@ const Ventures = () => {
               </div>
             ))}
           </div>
+
           {/* Success Metrics */}
           <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg p-8 text-white mb-16">
             <div className="text-center mb-8">
