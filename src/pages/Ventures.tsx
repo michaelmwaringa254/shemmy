@@ -102,6 +102,12 @@ const Ventures = () => {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h1 className="text-4xl font-bold text-gray-800 mb-4">My Ventures</h1>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Successful ventures that demonstrate my ability to build and scale digital products across various industries
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
               {ventures.map((venture, index) => (
                 <div key={index} className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 group">
                   {/* Background Image Header */}
