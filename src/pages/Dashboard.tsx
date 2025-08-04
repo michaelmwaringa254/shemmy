@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, ServiceRequest } from '../lib/supabase';
-import { LogOut, Users, Clock, CheckCircle, XCircle, Search, Filter, Eye, Edit, Trash2, Mail, Phone, Calendar, AlertCircle, TrendingUp, LayoutDashboard, FileText, MessageSquare, Palette as Newsletter, Settings } from 'lucide-react';
+import { LogOut, Users, Clock, CheckCircle, XCircle, Search, Filter, Eye, Edit, Trash2, Mail, Phone, Calendar, AlertCircle, TrendingUp, LayoutDashboard, FileText, MessageSquare, Palette as Newsletter, Settings, Plus, X, Building } from 'lucide-react';
 import CMSManager from '../components/CMSManager';
 
 interface NewsletterSubscription {
@@ -26,6 +26,34 @@ interface ContactMessage {
   updated_at: string;
 }
 
+interface Client {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  status: 'active' | 'inactive' | 'prospect' | 'completed';
+  total_projects: number;
+  total_revenue: number;
+  last_contact: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Project {
+  id: string;
+  client_id: string;
+  title: string;
+  description: string;
+  status: 'planning' | 'in_progress' | 'completed' | 'on_hold' | 'cancelled';
+  budget: number;
+  start_date: string;
+  end_date?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -33,11 +61,24 @@ const Dashboard = () => {
   const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [newsletterSubscriptions, setNewsletterSubscriptions] = useState<NewsletterSubscription[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | ContactMessage | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showClientModal, setShowClientModal] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [showAddClientModal, setShowAddClientModal] = useState(false);
+  const [newClient, setNewClient] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    status: 'prospect' as const,
+    notes: ''
+  });
 
   const handleSignOut = async () => {
     await signOut();
@@ -82,6 +123,39 @@ const Dashboard = () => {
       if (newsletterError) throw newsletterError;
       setNewsletterSubscriptions(newsletterData || []);
 
+      // Mock clients data (replace with actual Supabase call when table is created)
+      const mockClients: Client[] = [
+        {
+          id: '1',
+          name: 'John Smith',
+          email: 'john@example.com',
+          phone: '+1234567890',
+          company: 'Tech Solutions Inc',
+          status: 'active',
+          total_projects: 3,
+          total_revenue: 15000,
+          last_contact: new Date().toISOString(),
+          notes: 'Great client, always pays on time',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: '2',
+          name: 'Sarah Johnson',
+          email: 'sarah@startup.com',
+          phone: '+1987654321',
+          company: 'Startup Ventures',
+          status: 'prospect',
+          total_projects: 0,
+          total_revenue: 0,
+          last_contact: new Date().toISOString(),
+          notes: 'Interested in e-commerce solution',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
+      setClients(mockClients);
+
     } catch (error) {
       console.error('Error fetching data:', error);
       if (error.message?.includes('JWT')) {
@@ -90,6 +164,46 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const addNewClient = async () => {
+    try {
+      const clientData: Client = {
+        id: Date.now().toString(),
+        ...newClient,
+        total_projects: 0,
+        total_revenue: 0,
+        last_contact: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      setClients(prev => [clientData, ...prev]);
+      setShowAddClientModal(false);
+      setNewClient({
+        name: '',
+        email: '',
+        phone: '',
+        company: '',
+        status: 'prospect',
+        notes: ''
+      });
+    } catch (error) {
+      console.error('Error adding client:', error);
+      alert('Failed to add client. Please try again.');
+    }
+  };
+
+  const updateClientStatus = async (id: string, status: string) => {
+    setClients(prev => 
+      prev.map(client => client.id === id ? { ...client, status } : client)
+    );
+  };
+
+  const deleteClient = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this client?')) return;
+    setClients(prev => prev.filter(client => client.id !== id));
+    setShowClientModal(false);
   };
 
   const updateRequestStatus = async (id: string, status: string, table: 'service_requests' | 'contact_messages' = 'service_requests') => {
@@ -181,6 +295,8 @@ const Dashboard = () => {
       case 'archived': return 'bg-gray-100 text-gray-800';
       case 'active': return 'bg-green-100 text-green-800';
       case 'unsubscribed': return 'bg-gray-100 text-gray-800';
+      case 'prospect': return 'bg-yellow-100 text-yellow-800';
+      case 'inactive': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -204,6 +320,12 @@ const Dashboard = () => {
       return newsletterSubscriptions.filter(sub => 
         sub.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (sub.name && sub.name.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    } else if (activeTab === 'crm') {
+      return clients.filter(client => 
+        client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (client.company && client.company.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
@@ -229,12 +351,16 @@ const Dashboard = () => {
     unreadContacts: contactMessages.filter(c => c.status === 'unread').length,
     totalNewsletterSubs: newsletterSubscriptions.length,
     activeNewsletterSubs: newsletterSubscriptions.filter(s => s.status === 'active').length,
+    totalClients: clients.length,
+    activeClients: clients.filter(c => c.status === 'active').length,
+    totalRevenue: clients.reduce((sum, client) => sum + client.total_revenue, 0),
   };
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
     { id: 'service-requests', label: 'Service Requests', icon: <FileText className="w-5 h-5" /> },
     { id: 'contact-messages', label: 'Contact Messages', icon: <MessageSquare className="w-5 h-5" /> },
+    { id: 'crm', label: 'Client Management', icon: <Users className="w-5 h-5" /> },
     { id: 'newsletter', label: 'Newsletter Subscriptions', icon: <Newsletter className="w-5 h-5" /> },
     { id: 'cms', label: 'CMS Manager', icon: <Settings className="w-5 h-5" /> },
   ];
@@ -261,19 +387,19 @@ const Dashboard = () => {
         </div>
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center">
-            <MessageSquare className="w-8 h-8 text-green-600" />
+            <Users className="w-8 h-8 text-green-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Contact Messages</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalContacts}</p>
+              <p className="text-sm font-medium text-gray-600">Total Clients</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.totalClients}</p>
             </div>
           </div>
         </div>
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center">
-            <Newsletter className="w-8 h-8 text-purple-600" />
+            <TrendingUp className="w-8 h-8 text-purple-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Newsletter Subscribers</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalNewsletterSubs}</p>
+              <p className="text-sm font-medium text-gray-600">Total Revenue</p>
+              <p className="text-2xl font-bold text-gray-900">${stats.totalRevenue.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -281,8 +407,8 @@ const Dashboard = () => {
           <div className="flex items-center">
             <CheckCircle className="w-8 h-8 text-orange-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Completed Requests</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.completedRequests}</p>
+              <p className="text-sm font-medium text-gray-600">Active Clients</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.activeClients}</p>
             </div>
           </div>
         </div>
@@ -290,16 +416,16 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Service Requests</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Clients</h3>
           <div className="space-y-3">
-            {serviceRequests.slice(0, 5).map((request) => (
-              <div key={request.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            {clients.slice(0, 5).map((client) => (
+              <div key={client.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-900">{request.name}</p>
-                  <p className="text-sm text-gray-600">{request.service}</p>
+                  <p className="font-medium text-gray-900">{client.name}</p>
+                  <p className="text-sm text-gray-600">{client.company || client.email}</p>
                 </div>
-                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(request.status)}`}>
-                  {request.status}
+                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(client.status)}`}>
+                  {client.status}
                 </span>
               </div>
             ))}
@@ -326,25 +452,16 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Newsletter Subscriptions</h3>
-          <div className="space-y-3">
-            {newsletterSubscriptions.slice(0, 5).map((subscription) => (
-              <div key={subscription.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-900">{subscription.name || 'Anonymous'}</p>
-                  <p className="text-sm text-gray-600">{subscription.email}</p>
-                </div>
-                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(subscription.status)}`}>
-                  {subscription.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
           <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Total Clients</span>
+              <span className="font-bold text-blue-600">{stats.totalClients}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Active Clients</span>
+              <span className="font-bold text-green-600">{stats.activeClients}</span>
+            </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Unread Messages</span>
               <span className="font-bold text-red-600">{stats.unreadContacts}</span>
@@ -353,13 +470,25 @@ const Dashboard = () => {
               <span className="text-gray-600">Pending Requests</span>
               <span className="font-bold text-yellow-600">{stats.pendingRequests}</span>
             </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Overview</h3>
+          <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Active Subscribers</span>
-              <span className="font-bold text-green-600">{stats.activeNewsletterSubs}</span>
+              <span className="text-gray-600">Total Revenue</span>
+              <span className="font-bold text-green-600">${stats.totalRevenue.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Average per Client</span>
+              <span className="font-bold text-blue-600">
+                ${stats.totalClients > 0 ? Math.round(stats.totalRevenue / stats.totalClients).toLocaleString() : '0'}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Completed Projects</span>
-              <span className="font-bold text-blue-600">{stats.completedRequests}</span>
+              <span className="font-bold text-purple-600">{clients.reduce((sum, client) => sum + client.total_projects, 0)}</span>
             </div>
           </div>
         </div>
@@ -619,6 +748,116 @@ const Dashboard = () => {
     );
   };
 
+  const renderCRMTable = () => {
+    const data = filteredData();
+
+    return (
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-green-100">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gradient-to-r from-green-50 to-green-100">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Client
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Company
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Projects
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Revenue
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Last Contact
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {data.map((client) => (
+                <tr key={client.id} className="hover:bg-green-25 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{client.name}</div>
+                      <div className="text-sm text-gray-500">{client.email}</div>
+                      {client.phone && (
+                        <div className="text-xs text-gray-400">{client.phone}</div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{client.company || 'N/A'}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{client.total_projects}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-green-600">${client.total_revenue.toLocaleString()}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <select
+                      value={client.status}
+                      onChange={(e) => updateClientStatus(client.id, e.target.value)}
+                      className={`text-xs font-semibold rounded-full px-2 py-1 border-0 ${getStatusColor(client.status)}`}
+                    >
+                      <option value="prospect">Prospect</option>
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(client.last_contact).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => {
+                          setSelectedClient(client);
+                          setShowClientModal(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-900"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <a
+                        href={`mailto:${client.email}`}
+                        className="text-green-600 hover:text-green-900"
+                      >
+                        <Mail className="w-4 h-4" />
+                      </a>
+                      {client.phone && (
+                        <a
+                          href={`tel:${client.phone}`}
+                          className="text-purple-600 hover:text-purple-900"
+                        >
+                          <Phone className="w-4 h-4" />
+                        </a>
+                      )}
+                      <button
+                        onClick={() => deleteClient(client.id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
   const renderDataTable = () => {
     if (activeTab === 'newsletter') {
       return renderNewsletterTable();
@@ -626,6 +865,8 @@ const Dashboard = () => {
       return renderContactMessagesTable();
     } else if (activeTab === 'service-requests') {
       return renderServiceRequestsTable();
+    } else if (activeTab === 'crm') {
+      return renderCRMTable();
     }
     return null;
   };
@@ -695,6 +936,7 @@ const Dashboard = () => {
             {activeTab === 'contact-messages' && 'View and respond to contact form submissions'}
             {activeTab === 'newsletter' && 'Manage newsletter subscriptions'}
             {activeTab === 'cms' && 'Manage website content, images, and sections'}
+            {activeTab === 'crm' && 'Manage your clients and business relationships'}
           </p>
         </div>
 
@@ -704,6 +946,19 @@ const Dashboard = () => {
           <CMSManager />
         ) : (
           <div className="space-y-6">
+            {/* Add Client Button for CRM */}
+            {activeTab === 'crm' && (
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setShowAddClientModal(true)}
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add New Client</span>
+                </button>
+              </div>
+            )}
+
             {/* Filters */}
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex flex-col sm:flex-row gap-4">
@@ -714,7 +969,8 @@ const Dashboard = () => {
                       type="text"
                       placeholder={`Search ${
                         activeTab === 'newsletter' ? 'subscribers' : 
-                        activeTab === 'contact-messages' ? 'messages' : 'requests'
+                        activeTab === 'contact-messages' ? 'messages' : 
+                        activeTab === 'crm' ? 'clients' : 'requests'
                       }...`}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
@@ -722,7 +978,7 @@ const Dashboard = () => {
                     />
                   </div>
                 </div>
-                {activeTab !== 'newsletter' && (
+                {activeTab !== 'newsletter' && activeTab !== 'crm' && (
                   <div className="sm:w-48">
                     <select
                       value={statusFilter}
@@ -748,6 +1004,21 @@ const Dashboard = () => {
                     </select>
                   </div>
                 )}
+                {activeTab === 'crm' && (
+                  <div className="sm:w-48">
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    >
+                      <option value="all">All Status</option>
+                      <option value="prospect">Prospect</option>
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -761,7 +1032,7 @@ const Dashboard = () => {
                 <p className="text-gray-500">
                   {searchTerm || statusFilter !== 'all' 
                     ? 'Try adjusting your search or filter criteria.'
-                    : `No ${activeTab.replace('-', ' ')} ${activeTab === 'newsletter' ? 'subscriptions' : ''} have been submitted yet.`
+                    : `No ${activeTab.replace('-', ' ')} ${activeTab === 'newsletter' ? 'subscriptions' : activeTab === 'crm' ? 'clients' : ''} have been submitted yet.`
                   }
                 </p>
               </div>
@@ -769,6 +1040,246 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Client Details Modal */}
+      {showClientModal && selectedClient && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-6">
+                <h3 className="text-xl font-bold text-gray-900">Client Details</h3>
+                <button
+                  onClick={() => setShowClientModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-3">Contact Information</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Users className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm text-gray-600">Name:</span>
+                        <span className="text-sm font-medium">{selectedClient.name}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Mail className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm text-gray-600">Email:</span>
+                        <a href={`mailto:${selectedClient.email}`} className="text-sm font-medium text-blue-600 hover:text-blue-800">
+                          {selectedClient.email}
+                        </a>
+                      </div>
+                      {selectedClient.phone && (
+                        <div className="flex items-center space-x-2">
+                          <Phone className="w-4 h-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">Phone:</span>
+                          <a href={`tel:${selectedClient.phone}`} className="text-sm font-medium text-blue-600 hover:text-blue-800">
+                            {selectedClient.phone}
+                          </a>
+                        </div>
+                      )}
+                      {selectedClient.company && (
+                        <div className="flex items-center space-x-2">
+                          <Building className="w-4 h-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">Company:</span>
+                          <span className="text-sm font-medium">{selectedClient.company}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-3">Business Details</h4>
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-sm text-gray-600">Status:</span>
+                        <span className={`ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedClient.status)}`}>
+                          {selectedClient.status}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">Total Projects:</span>
+                        <span className="text-sm font-medium ml-2">{selectedClient.total_projects}</span>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">Total Revenue:</span>
+                        <span className="text-sm font-medium ml-2 text-green-600">${selectedClient.total_revenue.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm text-gray-600">Last Contact:</span>
+                        <span className="text-sm font-medium">{new Date(selectedClient.last_contact).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {selectedClient.notes && (
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-3">Notes</h4>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{selectedClient.notes}</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center pt-6 border-t">
+                  <div className="flex space-x-2">
+                    <a
+                      href={`mailto:${selectedClient.email}`}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                    >
+                      <Mail className="w-4 h-4" />
+                      <span>Send Email</span>
+                    </a>
+                    {selectedClient.phone && (
+                      <a
+                        href={`tel:${selectedClient.phone}`}
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                      >
+                        <Phone className="w-4 h-4" />
+                        <span>Call Client</span>
+                      </a>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => deleteClient(selectedClient.id)}
+                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Delete Client</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Client Modal */}
+      {showAddClientModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-gray-900">Add New Client</h3>
+                <button
+                  onClick={() => setShowAddClientModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <form onSubmit={(e) => { e.preventDefault(); addNewClient(); }} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Client Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={newClient.name}
+                    onChange={(e) => setNewClient({...newClient, name: e.target.value})}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Enter client name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    value={newClient.email}
+                    onChange={(e) => setNewClient({...newClient, email: e.target.value})}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Enter email address"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={newClient.phone}
+                    onChange={(e) => setNewClient({...newClient, phone: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Enter phone number"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Company
+                  </label>
+                  <input
+                    type="text"
+                    value={newClient.company}
+                    onChange={(e) => setNewClient({...newClient, company: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Enter company name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Status
+                  </label>
+                  <select
+                    value={newClient.status}
+                    onChange={(e) => setNewClient({...newClient, status: e.target.value as any})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  >
+                    <option value="prospect">Prospect</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Notes
+                  </label>
+                  <textarea
+                    value={newClient.notes}
+                    onChange={(e) => setNewClient({...newClient, notes: e.target.value})}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Add any notes about this client..."
+                  />
+                </div>
+
+                <div className="flex justify-end space-x-3 mt-6 pt-6 border-t">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddClientModal(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors flex items-center space-x-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Client</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Request Details Modal */}
       {showModal && selectedRequest && (
