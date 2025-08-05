@@ -2,8 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, ServiceRequest } from '../lib/supabase';
-import { LogOut, Users, Clock, CheckCircle, XCircle, Search, Filter, Eye, Edit, Trash2, Mail, Phone, Calendar, AlertCircle, TrendingUp, LayoutDashboard, FileText, MessageSquare, Palette as Newsletter, Settings, Plus, X, Building } from 'lucide-react';
+import { LogOut, Users, Clock, CheckCircle, XCircle, Search, Filter, Eye, Edit, Trash2, Mail, Phone, Calendar, AlertCircle, TrendingUp, LayoutDashboard, FileText, MessageSquare, Palette as Newsletter, Settings, Plus, X, Building,
+  UserPlus,
+  Target,
+  Briefcase,
+  CheckSquare,
+  Activity,
+  PieChart,
+  Workflow,
+  DollarSign,
+  BarChart3 } from 'lucide-react';
 import CMSManager from '../components/CMSManager';
+import ContactManager from '../components/crm/ContactManager';
+import LeadManager from '../components/crm/LeadManager';
+import OpportunityManager from '../components/crm/OpportunityManager';
+import TaskManager from '../components/crm/TaskManager';
+import PipelineManager from '../components/crm/PipelineManager';
+import AnalyticsReports from '../components/crm/AnalyticsReports';
+import WorkflowManager from '../components/crm/WorkflowManager';
 
 interface NewsletterSubscription {
   id: string;
@@ -58,11 +74,20 @@ const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeCRMTab, setActiveCRMTab] = useState('contacts');
   const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [newsletterSubscriptions, setNewsletterSubscriptions] = useState<NewsletterSubscription[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [crmStats, setCrmStats] = useState({
+    totalContacts: 0,
+    totalLeads: 0,
+    totalOpportunities: 0,
+    totalTasks: 0,
+    totalRevenue: 0,
+    conversionRate: 0
+  });
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -87,6 +112,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchAllData();
+    fetchCRMStats();
   }, []);
 
   const fetchAllData = async () => {
@@ -163,6 +189,41 @@ const Dashboard = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCRMStats = async () => {
+    try {
+      if (!supabase) return;
+
+      // Fetch CRM statistics
+      const [contactsResult, leadsResult, opportunitiesResult, tasksResult] = await Promise.all([
+        supabase.from('crm_contacts').select('id', { count: 'exact' }),
+        supabase.from('crm_leads').select('id', { count: 'exact' }),
+        supabase.from('crm_opportunities').select('value'),
+        supabase.from('crm_tasks').select('id', { count: 'exact' })
+      ]);
+
+      const totalRevenue = opportunitiesResult.data?.reduce((sum, opp) => sum + (opp.value || 0), 0) || 0;
+      const wonOpportunities = await supabase
+        .from('crm_opportunities')
+        .select('id', { count: 'exact' })
+        .eq('stage', 'closed_won');
+
+      const conversionRate = opportunitiesResult.data?.length > 0 
+        ? ((wonOpportunities.count || 0) / opportunitiesResult.data.length) * 100 
+        : 0;
+
+      setCrmStats({
+        totalContacts: contactsResult.count || 0,
+        totalLeads: leadsResult.count || 0,
+        totalOpportunities: opportunitiesResult.data?.length || 0,
+        totalTasks: tasksResult.count || 0,
+        totalRevenue,
+        conversionRate
+      });
+    } catch (error) {
+      console.error('Error fetching CRM stats:', error);
     }
   };
 
@@ -363,6 +424,16 @@ const Dashboard = () => {
     { id: 'crm', label: 'Client Management', icon: <Users className="w-5 h-5" /> },
     { id: 'newsletter', label: 'Newsletter Subscriptions', icon: <Newsletter className="w-5 h-5" /> },
     { id: 'cms', label: 'CMS Manager', icon: <Settings className="w-5 h-5" /> },
+  ];
+
+  const crmMenuItems = [
+    { id: 'contacts', label: 'Contact Management', icon: <UserPlus className="w-4 h-4" /> },
+    { id: 'leads', label: 'Lead Management', icon: <Target className="w-4 h-4" /> },
+    { id: 'opportunities', label: 'Opportunity Management', icon: <Briefcase className="w-4 h-4" /> },
+    { id: 'tasks', label: 'Task Management', icon: <CheckSquare className="w-4 h-4" /> },
+    { id: 'pipeline', label: 'Sales Pipeline', icon: <TrendingUp className="w-4 h-4" /> },
+    { id: 'analytics', label: 'Analytics & Reports', icon: <PieChart className="w-4 h-4" /> },
+    { id: 'workflows', label: 'Workflow Automation', icon: <Workflow className="w-4 h-4" /> },
   ];
 
   if (loading) {
@@ -871,6 +942,47 @@ const Dashboard = () => {
     return null;
   };
 
+  const renderCRM = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold text-gray-900">CRM System</h2>
+      </div>
+
+      {/* CRM Navigation */}
+      <div className="bg-white rounded-lg shadow">
+        <div className="border-b border-gray-200">
+          <nav className="flex space-x-8 px-6">
+            {crmMenuItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveCRMTab(item.id)}
+                className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                  activeCRMTab === item.id
+                    ? 'border-orange-500 text-orange-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
+      </div>
+
+      {/* CRM Content */}
+      <div className="bg-white rounded-lg shadow p-6">
+        {activeCRMTab === 'contacts' && <ContactManager />}
+        {activeCRMTab === 'leads' && <LeadManager />}
+        {activeCRMTab === 'opportunities' && <OpportunityManager />}
+        {activeCRMTab === 'tasks' && <TaskManager />}
+        {activeCRMTab === 'pipeline' && <PipelineManager />}
+        {activeCRMTab === 'analytics' && <AnalyticsReports />}
+        {activeCRMTab === 'workflows' && <WorkflowManager />}
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
@@ -944,6 +1056,8 @@ const Dashboard = () => {
           renderDashboardOverview()
         ) : activeTab === 'cms' ? (
           <CMSManager />
+        ) : activeTab === 'crm' ? (
+          renderCRM()
         ) : (
           <div className="space-y-6">
             {/* Add Client Button for CRM */}
