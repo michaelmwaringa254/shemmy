@@ -322,9 +322,9 @@ const PipelineManager = () => {
 
       {/* Pipeline Board */}
       <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex space-x-6 overflow-x-auto pb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {currentStages.map((stage) => (
-            <div key={stage.id} className="flex-shrink-0 w-80">
+            <div key={stage.id} className="min-h-[400px]">
               <div className={`rounded-lg border-2 ${getStageColor(stage.name.toLowerCase().replace(' ', '_'))} p-4 mb-4`}>
                 <div className="flex justify-between items-center mb-2">
                   <h4 className="font-semibold">{stage.name}</h4>
@@ -350,21 +350,21 @@ const PipelineManager = () => {
                 </div>
               </div>
 
-              <div className="space-y-3 max-h-96 overflow-y-auto">
+              <div className="space-y-3 max-h-80 overflow-y-auto">
                 {stageOpportunities(stage.name.toLowerCase().replace(' ', '_')).map((opportunity) => (
                   <div
                     key={opportunity.id}
-                    className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-move"
+                    className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow cursor-move"
                     draggable
                     onDragStart={(e) => {
                       e.dataTransfer.setData('text/plain', opportunity.id);
                     }}
                   >
-                    <h5 className="font-medium text-gray-900 mb-2">{opportunity.name}</h5>
-                    <div className="text-sm text-gray-600 space-y-1">
+                    <h5 className="font-medium text-gray-900 mb-2 text-sm">{opportunity.name}</h5>
+                    <div className="text-xs text-gray-600 space-y-1">
                       <div className="flex justify-between">
                         <span>Value:</span>
-                        <span className="font-medium">${opportunity.value.toLocaleString()}</span>
+                        <span className="font-medium">${(opportunity.value / 1000).toFixed(0)}k</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Probability:</span>
@@ -373,7 +373,7 @@ const PipelineManager = () => {
                       {opportunity.expected_close_date && (
                         <div className="flex justify-between">
                           <span>Close Date:</span>
-                          <span>{new Date(opportunity.expected_close_date).toLocaleDateString()}</span>
+                          <span>{new Date(opportunity.expected_close_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                         </div>
                       )}
                     </div>
@@ -383,7 +383,7 @@ const PipelineManager = () => {
 
               {/* Drop Zone */}
               <div
-                className="mt-4 p-4 border-2 border-dashed border-gray-300 rounded-lg text-center text-gray-500 hover:border-orange-500 hover:text-orange-500 transition-colors"
+                className="mt-4 p-3 border-2 border-dashed border-gray-300 rounded-lg text-center text-gray-500 hover:border-orange-500 hover:text-orange-500 transition-colors text-sm"
                 onDragOver={(e) => {
                   e.preventDefault();
                   e.currentTarget.classList.add('border-orange-500', 'text-orange-500');
@@ -399,7 +399,7 @@ const PipelineManager = () => {
                   e.currentTarget.classList.remove('border-orange-500', 'text-orange-500');
                 }}
               >
-                Drop opportunity here
+                Drop here
               </div>
             </div>
           ))}
