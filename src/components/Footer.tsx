@@ -58,11 +58,10 @@ const Footer = () => {
           <div className="space-y-4">
             <Link to="/" className="flex items-center space-x-2">
               <img 
-                src="/Shemmy Logos.jpg" 
+                src="/assets/logos/Shemmy Logos.png" 
                 alt="Shemmy Mae Logo" 
-                className="w-10 h-10 object-contain"
+                className="w-50 h-12 object-contain"
               />
-              <span className="text-xl font-bold">Shemmy Mae</span>
             </Link>
             <p className="text-gray-400">
               Digital Solutions & Business Development Expert transforming ideas into digital success stories.
@@ -151,28 +150,9 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Ventures Section - Moved below main grid */}
-        <div className="mt-8 pt-8 border-t border-gray-800">
-          <h3 className="text-lg font-semibold text-orange-500 mb-6 text-center">My Ventures</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-            {ventures.map((venture, index) => (
-              <a
-                key={index}
-                href={`https://${venture.url}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-white transition-colors text-sm text-center flex flex-col items-center space-y-1 group"
-              >
-                <span className="group-hover:text-orange-500 transition-colors">{venture.name}</span>
-                <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100" />
-              </a>
-            ))}
-          </div>
-        </div>
-
         <div className="border-t border-gray-800 mt-12 pt-8 text-center">
           <p className="text-gray-400">
-            © {currentYear} Shemmy Mae. All rights reserved. Built with passion for digital excellence.
+            Shemmy Mae © {currentYear} . All rights reserved.
           </p>
         </div>
       </div>
