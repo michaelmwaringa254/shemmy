@@ -56,7 +56,7 @@ const Home = () => {
                   <div className="absolute -inset-4 bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-500 animate-pulse"></div>
                   <div className="relative">
                     <img 
-                      src="/clothes-swap-result.png" 
+                      src="/assets/frontend/clothes-swap-result.png" 
                       alt="Shemmy Mae - Professional Portrait" 
                       className="w-96 h-[28rem] object-cover rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-500 animate-fade-in-up"
                     />
