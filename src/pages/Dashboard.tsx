@@ -992,7 +992,7 @@ const Dashboard = () => {
             <img 
               src="/assets/logos/shemmy lanscape logo.png" 
               alt="Shemmy Mae Logo" 
-              className="w-10 h-10 object-contain"
+              className="w-50 h-12 object-contain"
             />
             <div>
               <p className="text-sm text-gray-600">Admin Panel</p>
