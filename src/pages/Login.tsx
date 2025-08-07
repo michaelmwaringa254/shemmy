@@ -40,11 +40,10 @@ const Login = () => {
         <div className="text-center">
           <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
             <img 
-              src="/Shemmy Logos.jpg" 
+              src="/assets/logos/shemmy lanscape logo.png" 
               alt="Shemmy Mae Logo" 
-              className="w-12 h-12 object-contain"
+              className="w-50 h-12 object-contain"
             />
-            <span className="text-2xl font-bold text-gray-800">Shemmy Mae</span>
           </Link>
           <h2 className="text-3xl font-bold text-gray-900">Admin Login</h2>
           <p className="mt-2 text-sm text-gray-600">
