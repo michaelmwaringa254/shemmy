@@ -995,7 +995,6 @@ const Dashboard = () => {
               className="w-10 h-10 object-contain"
             />
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
               <p className="text-sm text-gray-600">Admin Panel</p>
             </div>
           </div>
