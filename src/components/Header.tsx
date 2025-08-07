@@ -32,7 +32,6 @@ const Header = () => {
               alt="Shemmy Mae Logo" 
               className="w-50 h-12 object-contain"
             />
-            <span className="text-xl font-bold text-gray-800">Shemmy Mae</span>
           </Link>
 
           {/* Desktop Navigation */}
