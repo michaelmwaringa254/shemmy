@@ -59,7 +59,7 @@ const About = () => {
                 <div className="text-center">
                   <div className="w-24 h-24 mx-auto mb-6 flex items-center justify-center overflow-hidden rounded-full">
                     <img 
-                      src="/clothes-swap-result.png" 
+                      src="/assets/frontend/clothes-swap-result.png" 
                       alt="Shemmy Mae - Professional Portrait" 
                       className="w-full h-full object-cover"
                     />
