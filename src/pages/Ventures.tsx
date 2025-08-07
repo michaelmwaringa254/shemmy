@@ -17,8 +17,8 @@ const Ventures = () => {
       name: "Acadeemia",
       url: "acadeemia.com",
       description: "Educational technology platform connecting students with quality learning resources and expert tutors.",
-      logo: "/assets/ventures/acadeemia-logo.png",
-      backgroundImage: "/assets/ventures/acadeemia-bg.jpg",
+      logo: "/assets/ventures/logo/acadeemia-logo.png",
+      backgroundImage: "/assets/ventures/bg-img/acadeemia-bg.jpg",
       color: "from-blue-500 to-blue-600",
       features: ["Online Learning", "Expert Tutors", "Interactive Content", "Progress Tracking"],
       details: "A comprehensive educational platform that bridges the gap between students and quality education through innovative technology solutions."
