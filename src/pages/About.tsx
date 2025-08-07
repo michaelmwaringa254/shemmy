@@ -108,6 +108,7 @@ const About = () => {
                     <p className="text-orange-100">Client Satisfaction</p>
                   </div>
                 </div>
+                <div></div>
               </div>
             </div>
           </div>
