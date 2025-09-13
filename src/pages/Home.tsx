@@ -28,11 +28,11 @@ const Home = () => {
       highlights: ["Website Development", "Digital Marketing", "Graphics Design", "E-commerce Solutions"]
     },
     {
-      title: "My Ventures",
-      path: "/ventures",
+      title: "My Projects",
+      path: "/projects",
       icon: <Building className="w-8 h-8" />,
-      description: "Explore my successful ventures and projects that demonstrate my ability to build and scale digital products.",
-      highlights: ["Acadeemia", "WorkCrux", "WhatsClick", "TheTechsWay"]
+      description: "Explore my successful projects across various industries that demonstrate my technical expertise and problem-solving abilities.",
+      highlights: ["Web Applications", "Business Solutions", "Technology Platforms", "Digital Innovation"]
     },
     {
       title: "Contact",

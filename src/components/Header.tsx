@@ -49,10 +49,10 @@ const Header = () => {
               Services
             </button>
             <button
-              onClick={() => handleNavigation('/ventures')}
-              className={`transition-colors ${isActive('/ventures') ? 'text-orange-500' : 'text-gray-700 hover:text-orange-500'}`}
+              onClick={() => handleNavigation('/projects')}
+              className={`transition-colors ${isActive('/projects') ? 'text-orange-500' : 'text-gray-700 hover:text-orange-500'}`}
             >
-              Ventures
+              Projects
             </button>
             <button
               onClick={() => handleNavigation('/contact')}
@@ -111,10 +111,10 @@ const Header = () => {
                 Services
               </button>
               <button
-                onClick={() => handleNavigation('/ventures')}
-                className={`text-left transition-colors ${isActive('/ventures') ? 'text-orange-500' : 'text-gray-700 hover:text-orange-500'}`}
+                onClick={() => handleNavigation('/projects')}
+                className={`text-left transition-colors ${isActive('/projects') ? 'text-orange-500' : 'text-gray-700 hover:text-orange-500'}`}
               >
-                Ventures
+                Projects
               </button>
               <button
                 onClick={() => handleNavigation('/contact')}

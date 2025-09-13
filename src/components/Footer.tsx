@@ -125,11 +125,11 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/ventures"
+                  to="/projects"
                   className="text-gray-400 hover:text-white transition-colors text-sm"
                  onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
                 >
-                  Ventures
+                  Projects
                 </Link>
               </li>
               <li>
