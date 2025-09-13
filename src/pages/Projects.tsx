@@ -329,7 +329,7 @@ const Projects = () => {
                   <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Calendar className="w-6 h-6 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-gray-800 mb-1">2024</div>
+                  <div className="text-2xl font-bold text-gray-800 mb-1">2025</div>
                   <p className="text-gray-600 text-sm">Active Year</p>
                 </div>
               </div>
