@@ -42,11 +42,11 @@ const About = () => {
                 <h2 className="text-2xl font-bold text-gray-800 mb-6">My Story</h2>
                 <p className="text-gray-700 leading-relaxed mb-6">
                   I'm Shemmy Mae, a passionate entrepreneur and digital solutions expert with a proven track record 
-                  of building successful ventures and helping businesses thrive in the digital landscape. My journey 
+                  of building successful projects and helping businesses thrive in the digital landscape. My journey 
                   spans across website development, digital marketing, and business innovation.
                 </p>
                 <p className="text-gray-700 leading-relaxed mb-6">
-                  With four active ventures under my belt and expertise in multiple domains, I bring a unique 
+                  With eight active projects under my belt and expertise in multiple domains, I bring a unique 
                   perspective to every project. I believe in creating solutions that not only meet technical 
                   requirements but also drive real business growth and success.
                 </p>

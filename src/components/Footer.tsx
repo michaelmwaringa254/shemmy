@@ -6,17 +6,6 @@ import NewsletterSignup from './NewsletterSignup';
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
-  const ventures = [
-    { name: "Acadeemia", url: "www.acadeemia.com" },
-    { name: "WorkCrux", url: "www.workcrux.io" },
-    { name: "WhatsClick", url: "www.whatsclick.icu" },
-    { name: "TheTechsWay", url: "www.thetechsway.com" },
-    { name: "ShoeFlicker", url: "www.shoeflicker.com" },
-    { name: "MyRentalZone", url: "www.myrentalzone.com" },
-    { name: "MyTabibu", url: "www.mytabibu.com" },
-    { name: "MyStoko", url: "www.mystoko.com" }
-  ];
-
   const serviceCategories = [
     {
       title: "Development",

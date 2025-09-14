@@ -159,7 +159,7 @@ const Contact = () => {
                   <ul className="space-y-2 text-gray-600">
                     <li className="flex items-center space-x-2">
                       <CheckCircle className="w-5 h-5 text-green-500" />
-                      <span>Proven track record with successful ventures</span>
+                      <span>Proven track record with successful projects</span>
                     </li>
                     <li className="flex items-center space-x-2">
                       <CheckCircle className="w-5 h-5 text-green-500" />

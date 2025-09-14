@@ -83,7 +83,7 @@ const Home = () => {
 
                 <div className="animate-fade-in-up animation-delay-800">
                   <p className="text-lg text-gray-700 max-w-xl leading-relaxed mb-8">
-                    With a passion for innovation and a track record of successful ventures, I specialize in 
+                    With a passion for innovation and a track record of successful projects, I specialize in 
                     website development, digital marketing, and business solutions. Let's bring your vision to life.
                   </p>
                 </div>
@@ -111,7 +111,7 @@ const Home = () => {
             <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 text-center animate-fade-in-up animation-delay-1200">
               <div className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-2">
                 <div className="text-3xl font-bold text-orange-500 mb-2 animate-counter">8+</div>
-                <p className="text-gray-600">Active Ventures</p>
+                <p className="text-gray-600">Projects</p>
               </div>
               <div className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-2">
                 <div className="text-3xl font-bold text-orange-500 mb-2 animate-counter">15+</div>
@@ -133,7 +133,7 @@ const Home = () => {
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-800 mb-4">Explore My Portfolio</h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Discover my expertise, ventures, and how I can help transform your digital presence
+                Discover my expertise, Projects, and how I can help transform your digital presence
               </p>
             </div>
 

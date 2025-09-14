@@ -1,23 +1,50 @@
 import React, { useState, useEffect } from 'react';
+
+// Simple Modal component
+const Modal = ({ open, onClose, children }: { open: boolean, onClose: () => void, children: React.ReactNode }) => {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 transition-all">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto relative animate-fade-in">
+        <button className="absolute top-3 right-3 text-gray-400 hover:text-orange-500 transition-colors" onClick={onClose} aria-label="Close">
+          <X className="w-6 h-6" />
+        </button>
+        {children}
+      </div>
+      <div className="fixed inset-0" onClick={onClose} />
+    </div>
+  );
+};
 import { supabase } from '../lib/supabase';
-import { 
-  Save, 
-  Edit, 
-  Trash2, 
-  Plus, 
-  Image, 
-  Type, 
-  Code, 
+import {
+  Save,
+  Edit,
+  Trash2,
+  Plus,
+  Image as ImageIcon,
+  Type,
+  Code,
   FileText,
   Eye,
   EyeOff,
   Search,
-  Filter,
-  Upload,
   X,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  File,
+  Layout,
+  PictureInPicture
 } from 'lucide-react';
+
+// Interfaces for each feature
+interface Page {
+  id: string;
+  title: string;
+  slug: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 interface CMSContent {
   id: string;
@@ -31,562 +58,779 @@ interface CMSContent {
   updated_at: string;
 }
 
+interface CMSImage {
+  id: string;
+  url: string;
+  alt: string;
+  section: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 const CMSManager = () => {
-  const [content, setContent] = useState<CMSContent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sectionFilter, setSectionFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
-  const [editingItem, setEditingItem] = useState<CMSContent | null>(null);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<'pages' | 'sections' | 'images' | 'menus' | 'builder'>('pages');
+  // Page Builder state (move to top-level to persist across renders)
+  const [pageComponents, setPageComponents] = useState<any[]>([]);
+
+  // Menu builder state
+  const [menus, setMenus] = useState<any[]>([]);
+  const [loadingMenus, setLoadingMenus] = useState(false);
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const [editMenuId, setEditMenuId] = useState<string | null>(null);
+  const [newMenu, setNewMenu] = useState({ location: 'header', label: '', url: '', order: 1, is_active: true });
+
+  // Pages state
+  const [pages, setPages] = useState<Page[]>([]);
+  const [loadingPages, setLoadingPages] = useState(false);
+  const [showAddPage, setShowAddPage] = useState(false);
+  const [newPage, setNewPage] = useState({ title: '', slug: '', is_active: true });
+
+  // Sections add form
+  const [showAddSection, setShowAddSection] = useState(false);
+  const [newSection, setNewSection] = useState({ section: '', key: '', type: 'text', value: '', is_active: true });
+
+  // Images add form
+  const [showAddImage, setShowAddImage] = useState(false);
+  const [newImage, setNewImage] = useState({ url: '', alt: '', section: '', is_active: true });
+
+  // Sections state (cms_content)
+  const [sections, setSections] = useState<CMSContent[]>([]);
+  const [loadingSections, setLoadingSections] = useState(false);
+
+  // Images state
+  const [images, setImages] = useState<CMSImage[]>([]);
+  const [loadingImages, setLoadingImages] = useState(false);
+
+  // Shared
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-  const [newItem, setNewItem] = useState({
-    section: '',
-    key: '',
-    type: 'text' as const,
-    value: '',
-    metadata: {},
-    is_active: true
-  });
-
+  // Fetch data for each feature
   useEffect(() => {
-    fetchContent();
-  }, []);
+    if (activeMenu === 'pages') fetchPages();
+    if (activeMenu === 'sections') fetchSections();
+    if (activeMenu === 'images') fetchImages();
+    if (activeMenu === 'menus') fetchMenus();
+    // eslint-disable-next-line
+  }, [activeMenu]);
 
-  const fetchContent = async () => {
+  // Add Page
+  const handleAddPage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage(null);
     try {
-      if (!supabase) {
-        throw new Error('Database connection not available');
-      }
-
-      const { data, error } = await supabase
-        .from('cms_content')
-        .select('*')
-        .order('section', { ascending: true })
-        .order('key', { ascending: true });
-
+      const { data, error } = await supabase.from('cms_pages').insert([{ ...newPage }]);
       if (error) throw error;
-      setContent(data || []);
+      setShowAddPage(false);
+      setNewPage({ title: '', slug: '', is_active: true });
+      fetchPages();
+      setMessage({ type: 'success', text: 'Page created successfully' });
     } catch (error) {
-      console.error('Error fetching CMS content:', error);
-      showMessage('error', 'Failed to load content');
+      setMessage({ type: 'error', text: 'Failed to create page' });
+    }
+  };
+
+  // Add Section
+  const handleAddSection = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage(null);
+    try {
+      const { data, error } = await supabase.from('cms_content').insert([{ ...newSection }]);
+      if (error) throw error;
+      setShowAddSection(false);
+      setNewSection({ section: '', key: '', type: 'text', value: '', is_active: true });
+      fetchSections();
+      setMessage({ type: 'success', text: 'Section created successfully' });
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to create section' });
+    }
+  };
+
+  // Add Image
+  const handleAddImage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage(null);
+    try {
+      const { data, error } = await supabase.from('cms_images').insert([{ ...newImage }]);
+      if (error) throw error;
+      setShowAddImage(false);
+      setNewImage({ url: '', alt: '', section: '', is_active: true });
+      fetchImages();
+      setMessage({ type: 'success', text: 'Image created successfully' });
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to create image' });
+    }
+  };
+
+  // Fetch Pages
+  const fetchPages = async () => {
+    setLoadingPages(true);
+    setMessage(null); // Clear any previous error
+    try {
+      // Use the correct table name: 'cms_pages'
+      const { data, error } = await supabase.from('cms_pages').select('*').order('created_at', { ascending: false });
+      if (error) {
+        console.error('Supabase error loading pages:', error);
+        throw error;
+      }
+      setPages(data || []);
+      setMessage(null); // Clear error on success
+    } catch (error) {
+      console.error('Failed to load pages:', error);
+      setMessage({ type: 'error', text: 'Failed to load pages' });
     } finally {
-      setLoading(false);
+      setLoadingPages(false);
     }
   };
 
-  const showMessage = (type: 'success' | 'error', text: string) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage(null), 3000);
-  };
-
-  const saveContent = async (item: CMSContent) => {
-    setSaving(true);
+  // Fetch Sections
+  const fetchSections = async () => {
+    setLoadingSections(true);
     try {
-      if (!supabase) {
-        throw new Error('Database connection not available');
-      }
-
-      const { error } = await supabase
-        .from('cms_content')
-        .update({
-          value: item.value,
-          metadata: item.metadata,
-          is_active: item.is_active
-        })
-        .eq('id', item.id);
-
+      const { data, error } = await supabase.from('cms_content').select('*').order('section', { ascending: true });
       if (error) throw error;
-
-      setContent(prev => prev.map(c => c.id === item.id ? item : c));
-      setEditingItem(null);
-      showMessage('success', 'Content updated successfully');
+      setSections(data || []);
     } catch (error) {
-      console.error('Error saving content:', error);
-      showMessage('error', 'Failed to save content');
+      setMessage({ type: 'error', text: 'Failed to load sections' });
     } finally {
-      setSaving(false);
+      setLoadingSections(false);
     }
   };
 
-  const addNewContent = async () => {
-    setSaving(true);
+  // Fetch Images
+  const fetchImages = async () => {
+    setLoadingImages(true);
     try {
-      if (!supabase) {
-        throw new Error('Database connection not available');
-      }
-
-      const { data, error } = await supabase
-        .from('cms_content')
-        .insert([newItem])
-        .select()
-        .single();
-
+      const { data, error } = await supabase.from('cms_images').select('*').order('created_at', { ascending: false });
       if (error) throw error;
-
-      setContent(prev => [...prev, data]);
-      setShowAddModal(false);
-      setNewItem({
-        section: '',
-        key: '',
-        type: 'text',
-        value: '',
-        metadata: {},
-        is_active: true
-      });
-      showMessage('success', 'Content added successfully');
+      setImages(data || []);
     } catch (error) {
-      console.error('Error adding content:', error);
-      showMessage('error', 'Failed to add content');
+      setMessage({ type: 'error', text: 'Failed to load images' });
     } finally {
-      setSaving(false);
+      setLoadingImages(false);
     }
   };
 
-  const deleteContent = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this content?')) return;
-
+  // Fetch Menus
+  const fetchMenus = async () => {
+    setLoadingMenus(true);
     try {
-      if (!supabase) {
-        throw new Error('Database connection not available');
-      }
-
-      const { error } = await supabase
-        .from('cms_content')
-        .delete()
-        .eq('id', id);
-
+      const { data, error } = await supabase.from('cms_menus').select('*').order('order', { ascending: true });
       if (error) throw error;
-
-      setContent(prev => prev.filter(c => c.id !== id));
-      showMessage('success', 'Content deleted successfully');
+      setMenus(data || []);
     } catch (error) {
-      console.error('Error deleting content:', error);
-      showMessage('error', 'Failed to delete content');
+      setMessage({ type: 'error', text: 'Failed to load menus' });
+    } finally {
+      setLoadingMenus(false);
     }
   };
 
-  const toggleActive = async (item: CMSContent) => {
-    const updatedItem = { ...item, is_active: !item.is_active };
-    await saveContent(updatedItem);
-  };
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'text': return <Type className="w-4 h-4" />;
-      case 'image': return <Image className="w-4 h-4" />;
-      case 'html': return <Code className="w-4 h-4" />;
-      case 'json': return <FileText className="w-4 h-4" />;
-      default: return <Type className="w-4 h-4" />;
+  // Add Menu
+  const handleAddMenu = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage(null);
+    try {
+      const { data, error } = await supabase.from('cms_menus').insert([{ ...newMenu }]);
+      if (error) throw error;
+      setShowAddMenu(false);
+      setNewMenu({ location: 'header', label: '', url: '', order: 1, is_active: true });
+      fetchMenus();
+      setMessage({ type: 'success', text: 'Menu item created successfully' });
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to create menu item' });
     }
   };
 
-  const filteredContent = content.filter(item => {
-    const matchesSearch = 
-      item.section.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.value.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesSection = sectionFilter === 'all' || item.section === sectionFilter;
-    const matchesType = typeFilter === 'all' || item.type === typeFilter;
-    
-    return matchesSearch && matchesSection && matchesType;
-  });
+  // Edit Menu
+  const handleEditMenu = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage(null);
+    try {
+      const { data, error } = await supabase.from('cms_menus').update({ ...newMenu }).eq('id', editMenuId);
+      if (error) throw error;
+      setEditMenuId(null);
+      setNewMenu({ location: 'header', label: '', url: '', order: 1, is_active: true });
+      fetchMenus();
+      setMessage({ type: 'success', text: 'Menu item updated successfully' });
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to update menu item' });
+    }
+  };
 
-  const sections = [...new Set(content.map(item => item.section))];
-  const types = ['text', 'image', 'html', 'json'];
+  // Delete Menu
+  const handleDeleteMenu = async (id: string) => {
+    setMessage(null);
+    try {
+      const { error } = await supabase.from('cms_menus').delete().eq('id', id);
+      if (error) throw error;
+      fetchMenus();
+      setMessage({ type: 'success', text: 'Menu item deleted successfully' });
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to delete menu item' });
+    }
+  };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-      </div>
-    );
-  }
+  // Sidebar menu
+  const menu = [
+    { key: 'pages', label: 'Pages', icon: <File className="w-5 h-5" /> },
+    { key: 'sections', label: 'Sections', icon: <Layout className="w-5 h-5" /> },
+    { key: 'images', label: 'Images', icon: <PictureInPicture className="w-5 h-5" /> },
+    { key: 'menus', label: 'Menu Builder', icon: <Layout className="w-5 h-5" /> },
+    { key: 'builder', label: 'Page Builder', icon: <Layout className="w-5 h-5" /> },
+  ];
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold text-gray-900">CMS Manager</h2>
-          <p className="text-gray-600">Manage all website content, images, and sections</p>
-        </div>
+  // Main content renderers
+  const renderPages = () => (
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-bold">Pages</h3>
         <button
-          onClick={() => setShowAddModal(true)}
-          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+          className="flex items-center px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600"
+          onClick={() => setShowAddPage(v => !v)}
         >
-          <Plus className="w-4 h-4" />
-          <span>Add Content</span>
+          <Plus className="w-4 h-4 mr-1" /> Add New
         </button>
       </div>
-
-      {/* Message */}
-      {message && (
-        <div className={`p-4 rounded-lg flex items-center space-x-2 ${
-          message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
-        }`}>
-          {message.type === 'success' ? 
-            <CheckCircle className="w-5 h-5" /> : 
-            <AlertCircle className="w-5 h-5" />
-          }
-          <span>{message.text}</span>
-        </div>
-      )}
-
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+      <Modal open={showAddPage} onClose={() => setShowAddPage(false)}>
+        <form className="flex flex-col space-y-2" onSubmit={handleAddPage}>
+          <h4 className="text-lg font-semibold mb-2">Add New Page</h4>
+          <input
+            className="border px-2 py-1 rounded"
+            placeholder="Title"
+            value={newPage.title}
+            onChange={e => setNewPage({ ...newPage, title: e.target.value })}
+            required
+          />
+          <input
+            className="border px-2 py-1 rounded"
+            placeholder="Slug"
+            value={newPage.slug}
+            onChange={e => setNewPage({ ...newPage, slug: e.target.value })}
+            required
+          />
+          <label className="flex items-center space-x-1">
             <input
-              type="text"
-              placeholder="Search content..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              type="checkbox"
+              checked={newPage.is_active}
+              onChange={e => setNewPage({ ...newPage, is_active: e.target.checked })}
             />
+            <span>Active</span>
+          </label>
+          <div className="flex space-x-2">
+            <button type="submit" className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Save</button>
+            <button type="button" className="bg-gray-300 px-3 py-1 rounded" onClick={() => setShowAddPage(false)}>Cancel</button>
           </div>
-          <select
-            value={sectionFilter}
-            onChange={(e) => setSectionFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          >
-            <option value="all">All Sections</option>
-            {sections.map(section => (
-              <option key={section} value={section}>{section}</option>
-            ))}
-          </select>
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          >
-            <option value="all">All Types</option>
-            {types.map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Content Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
+        </form>
+      </Modal>
+      {loadingPages ? (
+        <div className="py-8 flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div></div>
+      ) : (
+        <div className="bg-white rounded-lg shadow overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Section / Key
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Type
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Content
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredContent.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50">
+              {pages.map(page => (
+                <tr key={page.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">{page.title}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{page.slug}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{item.section}</div>
-                      <div className="text-sm text-gray-500">{item.key}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center space-x-2">
-                      {getTypeIcon(item.type)}
-                      <span className="text-sm text-gray-900">{item.type}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900 max-w-xs truncate">
-                      {item.type === 'image' ? (
-                        <div className="flex items-center space-x-2">
-                          <img src={item.value} alt="" className="w-8 h-8 object-cover rounded" />
-                          <span>{item.value}</span>
-                        </div>
-                      ) : (
-                        item.value
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <button
-                      onClick={() => toggleActive(item)}
-                      className={`inline-flex items-center space-x-1 px-2 py-1 text-xs font-semibold rounded-full ${
-                        item.is_active 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {item.is_active ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-                      <span>{item.is_active ? 'Active' : 'Inactive'}</span>
-                    </button>
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${page.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{page.is_active ? 'Active' : 'Inactive'}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => setEditingItem(item)}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => deleteContent(item.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                    <button className="text-blue-600 hover:text-blue-900 mr-2"><Edit className="w-4 h-4" /></button>
+                    <button className="text-red-600 hover:text-red-900"><Trash2 className="w-4 h-4" /></button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
-
-      {/* Edit Modal */}
-      {editingItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-900">Edit Content</h3>
-                <button
-                  onClick={() => setEditingItem(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Section
-                    </label>
-                    <input
-                      type="text"
-                      value={editingItem.section}
-                      onChange={(e) => setEditingItem({...editingItem, section: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Key
-                    </label>
-                    <input
-                      type="text"
-                      value={editingItem.key}
-                      onChange={(e) => setEditingItem({...editingItem, key: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Content Value
-                  </label>
-                  {editingItem.type === 'html' ? (
-                    <textarea
-                      value={editingItem.value}
-                      onChange={(e) => setEditingItem({...editingItem, value: e.target.value})}
-                      rows={6}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent font-mono text-sm"
-                    />
-                  ) : (
-                    <input
-                      type="text"
-                      value={editingItem.value}
-                      onChange={(e) => setEditingItem({...editingItem, value: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    />
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Metadata (JSON)
-                  </label>
-                  <textarea
-                    value={JSON.stringify(editingItem.metadata, null, 2)}
-                    onChange={(e) => {
-                      try {
-                        const metadata = JSON.parse(e.target.value);
-                        setEditingItem({...editingItem, metadata});
-                      } catch (error) {
-                        // Invalid JSON, don't update
-                      }
-                    }}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent font-mono text-sm"
-                  />
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="is_active"
-                    checked={editingItem.is_active}
-                    onChange={(e) => setEditingItem({...editingItem, is_active: e.target.checked})}
-                    className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
-                  />
-                  <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
-                    Active
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-3 mt-6 pt-6 border-t">
-                <button
-                  onClick={() => setEditingItem(null)}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => saveContent(editingItem)}
-                  disabled={saving}
-                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors flex items-center space-x-2 disabled:opacity-50"
-                >
-                  {saving ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  ) : (
-                    <Save className="w-4 h-4" />
-                  )}
-                  <span>Save Changes</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       )}
+    </div>
+  );
 
-      {/* Add Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-900">Add New Content</h3>
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
+  const renderSections = () => {
+    // Categorize sections
+    const pageNames = ['about', 'services', 'ventures', 'contact'];
+    const generalNames = ['header', 'footer', 'navbar', 'sidebar'];
+    const pagesSections = sections.filter(s => pageNames.includes(s.section.toLowerCase()));
+    const generalSections = sections.filter(s => generalNames.includes(s.section.toLowerCase()));
+    const otherSections = sections.filter(s => !pageNames.includes(s.section.toLowerCase()) && !generalNames.includes(s.section.toLowerCase()));
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Section *
-                    </label>
-                    <input
-                      type="text"
-                      value={newItem.section}
-                      onChange={(e) => setNewItem({...newItem, section: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="e.g., hero, about, services"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Key *
-                    </label>
-                    <input
-                      type="text"
-                      value={newItem.key}
-                      onChange={(e) => setNewItem({...newItem, key: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="e.g., title, description, image"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Type *
-                  </label>
-                  <select
-                    value={newItem.type}
-                    onChange={(e) => setNewItem({...newItem, type: e.target.value as any})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  >
-                    <option value="text">Text</option>
-                    <option value="image">Image</option>
-                    <option value="html">HTML</option>
-                    <option value="json">JSON</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Content Value *
-                  </label>
-                  {newItem.type === 'html' ? (
-                    <textarea
-                      value={newItem.value}
-                      onChange={(e) => setNewItem({...newItem, value: e.target.value})}
-                      rows={4}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent font-mono text-sm"
-                      placeholder="Enter HTML content..."
-                    />
-                  ) : (
-                    <input
-                      type="text"
-                      value={newItem.value}
-                      onChange={(e) => setNewItem({...newItem, value: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="Enter content value..."
-                    />
-                  )}
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-3 mt-6 pt-6 border-t">
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={addNewContent}
-                  disabled={saving || !newItem.section || !newItem.key || !newItem.value}
-                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors flex items-center space-x-2 disabled:opacity-50"
-                >
-                  {saving ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  ) : (
-                    <Plus className="w-4 h-4" />
-                  )}
-                  <span>Add Content</span>
-                </button>
-              </div>
-            </div>
+    return (
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold">Sections</h3>
+          <button
+            className="flex items-center px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600"
+            onClick={() => setShowAddSection(v => !v)}
+          >
+            <Plus className="w-4 h-4 mr-1" /> Add New
+          </button>
+        </div>
+        <Modal open={showAddSection} onClose={() => setShowAddSection(false)}>
+        <form className="flex flex-col space-y-2" onSubmit={handleAddSection}>
+          <h4 className="text-lg font-semibold mb-2">Add New Section</h4>
+          <input
+            className="border px-2 py-1 rounded"
+            placeholder="Section"
+            value={newSection.section}
+            onChange={e => setNewSection({ ...newSection, section: e.target.value })}
+            required
+          />
+          <input
+            className="border px-2 py-1 rounded"
+            placeholder="Key"
+            value={newSection.key}
+            onChange={e => setNewSection({ ...newSection, key: e.target.value })}
+            required
+          />
+          <select
+            className="border px-2 py-1 rounded"
+            value={newSection.type}
+            onChange={e => setNewSection({ ...newSection, type: e.target.value as any })}
+          >
+            <option value="text">Text</option>
+            <option value="image">Image</option>
+            <option value="html">HTML</option>
+            <option value="json">JSON</option>
+          </select>
+          <input
+            className="border px-2 py-1 rounded"
+            placeholder="Value"
+            value={newSection.value}
+            onChange={e => setNewSection({ ...newSection, value: e.target.value })}
+            required
+          />
+          <label className="flex items-center space-x-1">
+            <input
+              type="checkbox"
+              checked={newSection.is_active}
+              onChange={e => setNewSection({ ...newSection, is_active: e.target.checked })}
+            />
+            <span>Active</span>
+          </label>
+          <div className="flex space-x-2">
+            <button type="submit" className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Save</button>
+            <button type="button" className="bg-gray-300 px-3 py-1 rounded" onClick={() => setShowAddSection(false)}>Cancel</button>
           </div>
+        </form>
+      </Modal>
+        {loadingSections ? (
+          <div className="py-8 flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div></div>
+        ) : (
+          <div className="bg-white rounded-lg shadow overflow-x-auto">
+            {/* Pages Sections */}
+            <h4 className="text-lg font-semibold mt-4 mb-2 text-orange-700">Pages Sections</h4>
+            <table className="min-w-full mb-8 divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Section</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Key</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {pagesSections.map(item => (
+                  <tr key={item.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">{item.section}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{item.key}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{item.type}</td>
+                    <td className="px-6 py-4 whitespace-nowrap truncate max-w-xs">{item.value}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${item.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{item.is_active ? 'Active' : 'Inactive'}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {/* General Sections */}
+            <h4 className="text-lg font-semibold mt-4 mb-2 text-orange-700">General Sections</h4>
+            <table className="min-w-full mb-8 divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Section</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Key</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {generalSections.map(item => (
+                  <tr key={item.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">{item.section}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{item.key}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{item.type}</td>
+                    <td className="px-6 py-4 whitespace-nowrap truncate max-w-xs">{item.value}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${item.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{item.is_active ? 'Active' : 'Inactive'}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {/* Other Sections */}
+            {otherSections.length > 0 && (
+              <>
+                <h4 className="text-lg font-semibold mt-4 mb-2 text-orange-700">Other Sections</h4>
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Section</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Key</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {otherSections.map(item => (
+                      <tr key={item.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">{item.section}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">{item.key}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">{item.type}</td>
+                        <td className="px-6 py-4 whitespace-nowrap truncate max-w-xs">{item.value}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${item.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{item.is_active ? 'Active' : 'Inactive'}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderImages = () => (
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-bold">Images</h3>
+        <button
+          className="flex items-center px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600"
+          onClick={() => setShowAddImage(v => !v)}
+        >
+          <Plus className="w-4 h-4 mr-1" /> Add New
+        </button>
+      </div>
+      <Modal open={showAddImage} onClose={() => setShowAddImage(false)}>
+        <form className="flex flex-col space-y-2" onSubmit={handleAddImage}>
+          <h4 className="text-lg font-semibold mb-2">Add New Image</h4>
+          <input
+            className="border px-2 py-1 rounded"
+            placeholder="Image URL"
+            value={newImage.url}
+            onChange={e => setNewImage({ ...newImage, url: e.target.value })}
+            required
+          />
+          <input
+            className="border px-2 py-1 rounded"
+            placeholder="Alt text"
+            value={newImage.alt}
+            onChange={e => setNewImage({ ...newImage, alt: e.target.value })}
+            required
+          />
+          <input
+            className="border px-2 py-1 rounded"
+            placeholder="Section"
+            value={newImage.section}
+            onChange={e => setNewImage({ ...newImage, section: e.target.value })}
+            required
+          />
+          <label className="flex items-center space-x-1">
+            <input
+              type="checkbox"
+              checked={newImage.is_active}
+              onChange={e => setNewImage({ ...newImage, is_active: e.target.checked })}
+            />
+            <span>Active</span>
+          </label>
+          <div className="flex space-x-2">
+            <button type="submit" className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Save</button>
+            <button type="button" className="bg-gray-300 px-3 py-1 rounded" onClick={() => setShowAddImage(false)}>Cancel</button>
+          </div>
+        </form>
+      </Modal>
+      {loadingImages ? (
+        <div className="py-8 flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div></div>
+      ) : (
+        <div className="bg-white rounded-lg shadow overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preview</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alt</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Section</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {images.map(img => (
+                <tr key={img.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <img src={img.url} alt={img.alt} className="w-12 h-12 object-cover rounded" />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap truncate max-w-xs">{img.url}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{img.alt}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{img.section}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${img.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{img.is_active ? 'Active' : 'Inactive'}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
   );
+
+  return (
+    <div className="flex min-h-[600px]">
+      {/* Sidebar */}
+      <div className="w-56 bg-white border-r border-gray-200 p-6">
+        <h2 className="text-2xl font-bold mb-8">CMS</h2>
+        <nav className="flex flex-col space-y-2">
+          {menu.map(item => (
+            <button
+              key={item.key}
+              onClick={() => setActiveMenu(item.key as any)}
+              className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors text-left ${activeMenu === item.key ? 'bg-orange-100 text-orange-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'}`}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+      </div>
+      {/* Main Content */}
+      <div className="flex-1 p-8">
+        {message && (
+          <div className={`mb-4 p-4 rounded-lg flex items-center space-x-2 ${message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+            {message.type === 'success' ? <CheckCircle className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+            <span>{message.text}</span>
+          </div>
+        )}
+        {activeMenu === 'pages' && renderPages()}
+        {activeMenu === 'sections' && renderSections()}
+        {activeMenu === 'images' && renderImages()}
+        {activeMenu === 'menus' && renderMenus()}
+        {activeMenu === 'builder' && renderPageBuilder()}
+      </div>
+    </div>
+  );
+
+  // Page Builder UI (basic prototype)
+  function renderPageBuilder() {
+    // Palette of available components
+    const palette = [
+      { type: 'heading', label: 'Heading' },
+      { type: 'text', label: 'Text' },
+      { type: 'image', label: 'Image' },
+      { type: 'button', label: 'Button' },
+    ];
+    // Add component to page
+    const addComponent = (type: string) => {
+      setPageComponents([...pageComponents, { type, id: Date.now() }]);
+    };
+    // Remove component
+    const removeComponent = (id: number) => {
+      setPageComponents(pageComponents.filter(c => c.id !== id));
+    };
+    // Move component (simple up/down for now)
+    const moveComponent = (from: number, to: number) => {
+      if (to < 0 || to >= pageComponents.length) return;
+      const updated = [...pageComponents];
+      const [moved] = updated.splice(from, 1);
+      updated.splice(to, 0, moved);
+      setPageComponents(updated);
+    };
+    return (
+      <div>
+        <h3 className="text-xl font-bold mb-4">Page Builder (Prototype)</h3>
+        <div className="flex gap-8">
+          {/* Palette */}
+          <div className="w-48 bg-gray-50 rounded-lg shadow p-4">
+            <h4 className="font-semibold mb-2">Components</h4>
+            {palette.map((item, idx) => (
+              <button
+                key={item.type}
+                className="w-full mb-2 px-3 py-2 bg-orange-100 hover:bg-orange-200 rounded text-left font-medium text-orange-700"
+                onClick={() => addComponent(item.type)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          {/* Canvas */}
+          <div className="flex-1 bg-white rounded-lg shadow p-6 min-h-[400px]">
+            <h4 className="font-semibold mb-4 text-gray-700">Page Canvas</h4>
+            {pageComponents.length === 0 && (
+              <div className="text-gray-400 text-center py-12">Drag components here to build your page</div>
+            )}
+            {pageComponents.map((comp, idx) => (
+              <div key={comp.id} className="mb-4 p-4 border rounded-lg bg-gray-50 flex items-center justify-between">
+                <div>
+                  {comp.type === 'heading' && <div className="text-2xl font-bold">Heading Example</div>}
+                  {comp.type === 'text' && <div className="text-gray-700">Text block example</div>}
+                  {comp.type === 'image' && <div className="w-32 h-20 bg-gray-200 flex items-center justify-center text-gray-400">Image</div>}
+                  {comp.type === 'button' && <button className="bg-orange-500 text-white px-4 py-2 rounded">Button</button>}
+                </div>
+                <div className="flex gap-2">
+                  <button className="text-gray-400 hover:text-orange-500" onClick={() => moveComponent(idx, idx-1)} title="Move Up">↑</button>
+                  <button className="text-gray-400 hover:text-orange-500" onClick={() => moveComponent(idx, idx+1)} title="Move Down">↓</button>
+                  <button className="text-red-500 hover:text-red-700" onClick={() => removeComponent(comp.id)} title="Remove">✕</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Menu Builder UI
+  function renderMenus() {
+    const headerMenus = menus.filter(m => m.location === 'header');
+    const footerMenus = menus.filter(m => m.location === 'footer');
+    return (
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold">Menu Builder</h3>
+          <button
+            className="flex items-center px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600"
+            onClick={() => { setShowAddMenu(true); setEditMenuId(null); setNewMenu({ location: 'header', label: '', url: '', order: 1, is_active: true }); }}
+          >
+            <Plus className="w-4 h-4 mr-1" /> Add Menu Item
+          </button>
+        </div>
+        <Modal open={showAddMenu} onClose={() => { setShowAddMenu(false); setEditMenuId(null); }}>
+          <form className="flex flex-col space-y-2" onSubmit={editMenuId ? handleEditMenu : handleAddMenu}>
+            <h4 className="text-lg font-semibold mb-2">{editMenuId ? 'Edit Menu Item' : 'Add Menu Item'}</h4>
+            <select
+              className="border px-2 py-1 rounded"
+              value={newMenu.location}
+              onChange={e => setNewMenu({ ...newMenu, location: e.target.value })}
+            >
+              <option value="header">Header</option>
+              <option value="footer">Footer</option>
+            </select>
+            <input
+              className="border px-2 py-1 rounded"
+              placeholder="Label"
+              value={newMenu.label}
+              onChange={e => setNewMenu({ ...newMenu, label: e.target.value })}
+              required
+            />
+            <input
+              className="border px-2 py-1 rounded"
+              placeholder="URL"
+              value={newMenu.url}
+              onChange={e => setNewMenu({ ...newMenu, url: e.target.value })}
+              required
+            />
+            <input
+              className="border px-2 py-1 rounded"
+              type="number"
+              min={1}
+              placeholder="Order"
+              value={newMenu.order}
+              onChange={e => setNewMenu({ ...newMenu, order: Number(e.target.value) })}
+              required
+            />
+            <label className="flex items-center space-x-1">
+              <input
+                type="checkbox"
+                checked={newMenu.is_active}
+                onChange={e => setNewMenu({ ...newMenu, is_active: e.target.checked })}
+              />
+              <span>Active</span>
+            </label>
+            <div className="flex space-x-2">
+              <button type="submit" className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">{editMenuId ? 'Update' : 'Save'}</button>
+              <button type="button" className="bg-gray-300 px-3 py-1 rounded" onClick={() => { setShowAddMenu(false); setEditMenuId(null); }}>Cancel</button>
+            </div>
+          </form>
+        </Modal>
+        {loadingMenus ? (
+          <div className="py-8 flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div></div>
+        ) : (
+          <div className="bg-white rounded-lg shadow overflow-x-auto">
+            <h4 className="text-lg font-semibold mt-4 mb-2 text-orange-700">Header Menu</h4>
+            <table className="min-w-full mb-8 divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Label</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {headerMenus.map(item => (
+                  <tr key={item.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">{item.label}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{item.url}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{item.order}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${item.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{item.is_active ? 'Active' : 'Inactive'}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button className="text-blue-600 hover:text-blue-900 mr-2" onClick={() => { setEditMenuId(item.id); setShowAddMenu(true); setNewMenu({ location: item.location, label: item.label, url: item.url, order: item.order, is_active: item.is_active }); }}><Edit className="w-4 h-4" /></button>
+                      <button className="text-red-600 hover:text-red-900" onClick={() => handleDeleteMenu(item.id)}><Trash2 className="w-4 h-4" /></button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <h4 className="text-lg font-semibold mt-4 mb-2 text-orange-700">Footer Menu</h4>
+            <table className="min-w-full mb-8 divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Label</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {footerMenus.map(item => (
+                  <tr key={item.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">{item.label}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{item.url}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{item.order}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${item.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{item.is_active ? 'Active' : 'Inactive'}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button className="text-blue-600 hover:text-blue-900 mr-2" onClick={() => { setEditMenuId(item.id); setShowAddMenu(true); setNewMenu({ location: item.location, label: item.label, url: item.url, order: item.order, is_active: item.is_active }); }}><Edit className="w-4 h-4" /></button>
+                      <button className="text-red-600 hover:text-red-900" onClick={() => handleDeleteMenu(item.id)}><Trash2 className="w-4 h-4" /></button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  }
 };
 
 export default CMSManager;
