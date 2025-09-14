@@ -17,7 +17,7 @@ const Projects = () => {
       name: "Acadeemia",
       url: "https://acadeemia.com",
       description: "A comprehensive school management system that streamlines educational operations, student management, and administrative processes for educational institutions.",
-      screenshot: "https://images.pexels.com/photos/5212345/pexels-photo-5212345.jpeg?auto=compress&cs=tinysrgb&w=800",
+      screenshot: "https://api.screenshotone.com/take?url=https://acadeemia.com&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=jpg&block_ads=true&block_cookie_banners=true&block_trackers=true&delay=3&cache=true",
       technologies: ["School Management", "Student Portal", "Administrative Tools", "Academic Tracking"],
       category: "Education Technology",
       year: "2024"
@@ -26,7 +26,7 @@ const Projects = () => {
       name: "THE BLEC",
       url: "https://theblec.com/",
       description: "Business and leadership excellence consultancy platform providing strategic consulting services, leadership development, and business transformation solutions.",
-      screenshot: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800",
+      screenshot: "https://api.screenshotone.com/take?url=https://theblec.com&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=jpg&block_ads=true&block_cookie_banners=true&block_trackers=true&delay=3&cache=true",
       technologies: ["Business Consulting", "Leadership Development", "Strategic Planning", "Corporate Training"],
       category: "Business Consulting",
       year: "2024"
@@ -35,7 +35,7 @@ const Projects = () => {
       name: "PrimeLandMetrix",
       url: "https://primelandmetrix.com/",
       description: "Advanced land measurement and property analytics platform providing precise land surveying, property valuation, and real estate metrics for professionals.",
-      screenshot: "https://images.pexels.com/photos/1546168/pexels-photo-1546168.jpeg?auto=compress&cs=tinysrgb&w=800",
+      screenshot: "https://api.screenshotone.com/take?url=https://primelandmetrix.com&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=jpg&block_ads=true&block_cookie_banners=true&block_trackers=true&delay=3&cache=true",
       technologies: ["Land Surveying", "Property Analytics", "GIS Mapping", "Real Estate Tools"],
       category: "Real Estate Technology",
       year: "2024"
@@ -44,7 +44,7 @@ const Projects = () => {
       name: "AdoNasi",
       url: "https://odanasi.com/",
       description: "Digital marketing and advertising solutions platform offering comprehensive marketing automation, campaign management, and performance analytics.",
-      screenshot: "https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?auto=compress&cs=tinysrgb&w=800",
+      screenshot: "https://api.screenshotone.com/take?url=https://odanasi.com&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=jpg&block_ads=true&block_cookie_banners=true&block_trackers=true&delay=3&cache=true",
       technologies: ["Digital Marketing", "Campaign Management", "Analytics", "Automation"],
       category: "Marketing Technology",
       year: "2024"
@@ -53,7 +53,7 @@ const Projects = () => {
       name: "WhatsClick",
       url: "https://whatsclick.icu/",
       description: "Innovative communication and engagement platform designed for businesses to enhance customer interaction and streamline communication workflows.",
-      screenshot: "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=800",
+      screenshot: "https://api.screenshotone.com/take?url=https://whatsclick.icu&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=jpg&block_ads=true&block_cookie_banners=true&block_trackers=true&delay=3&cache=true",
       technologies: ["Business Communication", "Customer Engagement", "Workflow Automation", "Real-time Messaging"],
       category: "Communication Platform",
       year: "2024"
@@ -62,7 +62,7 @@ const Projects = () => {
       name: "CRMSyncer",
       url: "https://crmsyncer.com/",
       description: "Advanced CRM synchronization and integration platform that connects multiple CRM systems, ensuring seamless data flow and unified customer management.",
-      screenshot: "https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=800",
+      screenshot: "https://api.screenshotone.com/take?url=https://crmsyncer.com&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=jpg&block_ads=true&block_cookie_banners=true&block_trackers=true&delay=3&cache=true",
       technologies: ["CRM Integration", "Data Synchronization", "API Management", "Customer Analytics"],
       category: "Business Software",
       year: "2024"
@@ -71,7 +71,7 @@ const Projects = () => {
       name: "WorkCrux",
       url: "https://workcrux.io/",
       description: "Professional networking and career development platform connecting professionals with opportunities, skill development resources, and industry insights.",
-      screenshot: "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800",
+      screenshot: "https://api.screenshotone.com/take?url=https://workcrux.io&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=jpg&block_ads=true&block_cookie_banners=true&block_trackers=true&delay=3&cache=true",
       technologies: ["Professional Networking", "Career Development", "Job Matching", "Skill Assessment"],
       category: "Professional Development",
       year: "2024"
@@ -80,7 +80,7 @@ const Projects = () => {
       name: "TechStackMatch",
       url: "https://techstackmatch.com/",
       description: "Technology stack recommendation and matching platform helping businesses choose the right technology solutions for their specific needs and requirements.",
-      screenshot: "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=800",
+      screenshot: "https://api.screenshotone.com/take?url=https://techstackmatch.com&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=jpg&block_ads=true&block_cookie_banners=true&block_trackers=true&delay=3&cache=true",
       technologies: ["Technology Consulting", "Stack Recommendations", "Tech Matching", "Solution Architecture"],
       category: "Technology Consulting",
       year: "2024"
@@ -89,7 +89,7 @@ const Projects = () => {
       name: "TECHPILOTAGENCY",
       url: "https://techpilotagency.com/",
       description: "Full-service technology agency providing end-to-end digital solutions, from concept to deployment, specializing in custom software development and digital transformation.",
-      screenshot: "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=800",
+      screenshot: "https://api.screenshotone.com/take?url=https://techpilotagency.com&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=jpg&block_ads=true&block_cookie_banners=true&block_trackers=true&delay=3&cache=true",
       technologies: ["Custom Development", "Digital Transformation", "Software Solutions", "Tech Consulting"],
       category: "Technology Agency",
       year: "2024"
@@ -98,7 +98,7 @@ const Projects = () => {
       name: "QUICKPROPOSE",
       url: "https://quickpropose.com/",
       description: "Streamlined proposal generation and management platform that helps businesses create professional proposals quickly and track their progress through the sales cycle.",
-      screenshot: "https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=800",
+      screenshot: "https://api.screenshotone.com/take?url=https://quickpropose.com&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=jpg&block_ads=true&block_cookie_banners=true&block_trackers=true&delay=3&cache=true",
       technologies: ["Proposal Management", "Document Generation", "Sales Tracking", "Client Management"],
       category: "Business Tools",
       year: "2024"
@@ -107,7 +107,7 @@ const Projects = () => {
       name: "AdoptTech",
       url: "https://adopttechsolutions.com/",
       description: "Technology adoption and implementation consultancy helping organizations successfully integrate new technologies and optimize their digital infrastructure.",
-      screenshot: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800",
+      screenshot: "https://api.screenshotone.com/take?url=https://adopttechsolutions.com&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=jpg&block_ads=true&block_cookie_banners=true&block_trackers=true&delay=3&cache=true",
       technologies: ["Technology Adoption", "Implementation Services", "Digital Infrastructure", "Change Management"],
       category: "Technology Consulting",
       year: "2024"
@@ -119,7 +119,7 @@ const Projects = () => {
       name: "TECHRESTOREKE",
       url: "https://techrestore.shemmymae.space",
       description: "Technology restoration and repair services platform connecting customers with certified technicians for device repairs, data recovery, and technical support services.",
-      screenshot: "https://images.pexels.com/photos/3861458/pexels-photo-3861458.jpeg?auto=compress&cs=tinysrgb&w=800",
+      screenshot: "https://api.screenshotone.com/take?url=https://techrestore.shemmymae.space&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=jpg&block_ads=true&block_cookie_banners=true&block_trackers=true&delay=3&cache=true",
       technologies: ["Device Repair", "Data Recovery", "Technical Support", "Service Booking"],
       category: "Technology Services",
       status: "In Development",
