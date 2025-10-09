@@ -12,6 +12,8 @@ import Projects from './pages/Projects';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 
 function App() {
   return (
@@ -32,6 +34,8 @@ function App() {
               <Route path="services" element={<Services />} />
               <Route path="projects" element={<Projects />} />
               <Route path="contact" element={<Contact />} />
+              <Route path="terms" element={<Terms />} />
+              <Route path="privacy" element={<Privacy />} />
             </Route>
           </Routes>
         </Router>
