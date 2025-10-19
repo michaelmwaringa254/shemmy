@@ -55,6 +55,12 @@ const Header = () => {
               Projects
             </button>
             <button
+              onClick={() => handleNavigation('/blog')}
+              className={`transition-colors ${isActive('/blog') || location.pathname.startsWith('/blog/') ? 'text-orange-500' : 'text-gray-700 hover:text-orange-500'}`}
+            >
+              Blog
+            </button>
+            <button
               onClick={() => handleNavigation('/contact')}
               className={`transition-colors ${isActive('/contact') ? 'text-orange-500' : 'text-gray-700 hover:text-orange-500'}`}
             >
@@ -115,6 +121,12 @@ const Header = () => {
                 className={`text-left transition-colors ${isActive('/projects') ? 'text-orange-500' : 'text-gray-700 hover:text-orange-500'}`}
               >
                 Projects
+              </button>
+              <button
+                onClick={() => handleNavigation('/blog')}
+                className={`text-left transition-colors ${isActive('/blog') || location.pathname.startsWith('/blog/') ? 'text-orange-500' : 'text-gray-700 hover:text-orange-500'}`}
+              >
+                Blog
               </button>
               <button
                 onClick={() => handleNavigation('/contact')}

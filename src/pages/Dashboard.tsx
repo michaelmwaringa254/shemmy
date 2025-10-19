@@ -13,6 +13,7 @@ import { LogOut, Users, Clock, CheckCircle, XCircle, Search, Filter, Eye, Edit, 
   DollarSign,
   BarChart3 } from 'lucide-react';
 import CMSManager from '../components/CMSManager';
+import BlogManager from '../components/BlogManager';
 import ContactManager from '../components/crm/ContactManager';
 import LeadManager from '../components/crm/LeadManager';
 import OpportunityManager from '../components/crm/OpportunityManager';
@@ -423,6 +424,7 @@ const Dashboard = () => {
     { id: 'contact-messages', label: 'Contact Messages', icon: <MessageSquare className="w-5 h-5" /> },
     { id: 'crm', label: 'Client Management', icon: <Users className="w-5 h-5" /> },
     { id: 'newsletter', label: 'Newsletter Subscriptions', icon: <Newsletter className="w-5 h-5" /> },
+    { id: 'blog', label: 'Blog Manager', icon: <FileText className="w-5 h-5" /> },
     { id: 'cms', label: 'CMS Manager', icon: <Settings className="w-5 h-5" /> },
   ];
 
@@ -1046,6 +1048,7 @@ const Dashboard = () => {
             {activeTab === 'service-requests' && 'Manage service requests from your website'}
             {activeTab === 'contact-messages' && 'View and respond to contact form submissions'}
             {activeTab === 'newsletter' && 'Manage newsletter subscriptions'}
+            {activeTab === 'blog' && 'Create and manage blog posts'}
             {activeTab === 'cms' && 'Manage website content, images, and sections'}
             {activeTab === 'crm' && 'Manage your clients and business relationships'}
           </p>
@@ -1055,6 +1058,8 @@ const Dashboard = () => {
           renderDashboardOverview()
         ) : activeTab === 'cms' ? (
           <CMSManager />
+        ) : activeTab === 'blog' ? (
+          <BlogManager />
         ) : activeTab === 'crm' ? (
           renderCRM()
         ) : (
