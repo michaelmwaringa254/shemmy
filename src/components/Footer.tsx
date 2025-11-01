@@ -90,6 +90,40 @@ const Footer = () => {
             </div>
           ))}
 
+          {/* Projects Section */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-orange-500">Projects</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link
+                  to="/projects"
+                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                  onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+                >
+                  Dev Projects
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/design-projects"
+                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                  onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+                >
+                  Design Projects
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/blog"
+                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                  onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+                >
+                  Blog
+                </Link>
+              </li>
+            </ul>
+          </div>
+
           {/* Quick Links */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-orange-500">Quick Links</h3>

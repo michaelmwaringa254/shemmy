@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { Menu, X, Mail, Phone, LogIn } from 'lucide-react';
+import { Menu, X, Mail, Phone, LogIn, ChevronDown } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProjectsDropdownOpen, setIsProjectsDropdownOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
   const closeMenu = () => {
     setIsMenuOpen(false);
+    setIsProjectsDropdownOpen(false);
   };
 
   const handleNavigation = (path: string) => {
@@ -48,12 +50,39 @@ const Header = () => {
             >
               Services
             </button>
-            <button
-              onClick={() => handleNavigation('/projects')}
-              className={`transition-colors ${isActive('/projects') ? 'text-orange-500' : 'text-gray-700 hover:text-orange-500'}`}
-            >
-              Projects
-            </button>
+
+            {/* Projects Dropdown */}
+            <div className="relative group">
+              <button
+                className={`flex items-center space-x-1 transition-colors ${
+                  isActive('/projects') || isActive('/design-projects') || location.pathname.startsWith('/projects') || location.pathname.startsWith('/design-projects')
+                    ? 'text-orange-500'
+                    : 'text-gray-700 hover:text-orange-500'
+                }`}
+              >
+                <span>Development</span>
+                <ChevronDown className="w-4 h-4" />
+              </button>
+              <div className="absolute left-0 mt-0 w-48 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 py-2">
+                <button
+                  onClick={() => handleNavigation('/projects')}
+                  className={`w-full text-left px-4 py-2 transition-colors ${
+                    isActive('/projects') ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-orange-50 hover:text-orange-600'
+                  }`}
+                >
+                  Dev Projects
+                </button>
+                <button
+                  onClick={() => handleNavigation('/design-projects')}
+                  className={`w-full text-left px-4 py-2 transition-colors ${
+                    isActive('/design-projects') ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-orange-50 hover:text-orange-600'
+                  }`}
+                >
+                  Design Projects
+                </button>
+              </div>
+            </div>
+
             <button
               onClick={() => handleNavigation('/blog')}
               className={`transition-colors ${isActive('/blog') || location.pathname.startsWith('/blog/') ? 'text-orange-500' : 'text-gray-700 hover:text-orange-500'}`}
@@ -116,12 +145,50 @@ const Header = () => {
               >
                 Services
               </button>
-              <button
-                onClick={() => handleNavigation('/projects')}
-                className={`text-left transition-colors ${isActive('/projects') ? 'text-orange-500' : 'text-gray-700 hover:text-orange-500'}`}
-              >
-                Projects
-              </button>
+
+              {/* Mobile Projects Dropdown */}
+              <div>
+                <button
+                  onClick={() => setIsProjectsDropdownOpen(!isProjectsDropdownOpen)}
+                  className={`w-full text-left flex items-center justify-between transition-colors ${
+                    isActive('/projects') || isActive('/design-projects')
+                      ? 'text-orange-500'
+                      : 'text-gray-700 hover:text-orange-500'
+                  }`}
+                >
+                  <span>Development</span>
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform ${
+                      isProjectsDropdownOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+                {isProjectsDropdownOpen && (
+                  <div className="pl-4 mt-2 space-y-2">
+                    <button
+                      onClick={() => handleNavigation('/projects')}
+                      className={`w-full text-left px-3 py-2 transition-colors ${
+                        isActive('/projects')
+                          ? 'bg-orange-50 text-orange-600'
+                          : 'text-gray-700 hover:bg-orange-50 hover:text-orange-600'
+                      }`}
+                    >
+                      Dev Projects
+                    </button>
+                    <button
+                      onClick={() => handleNavigation('/design-projects')}
+                      className={`w-full text-left px-3 py-2 transition-colors ${
+                        isActive('/design-projects')
+                          ? 'bg-orange-50 text-orange-600'
+                          : 'text-gray-700 hover:bg-orange-50 hover:text-orange-600'
+                      }`}
+                    >
+                      Design Projects
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <button
                 onClick={() => handleNavigation('/blog')}
                 className={`text-left transition-colors ${isActive('/blog') || location.pathname.startsWith('/blog/') ? 'text-orange-500' : 'text-gray-700 hover:text-orange-500'}`}
