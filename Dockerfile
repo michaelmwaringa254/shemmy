@@ -1,7 +1,7 @@
 # ------------------------------------------------------------
 # 1️⃣ Build stage - build your Vite React app
 # ------------------------------------------------------------
-FROM node:18-alpine AS builder
+FROM node:20-alpine
 
 # Set working directory
 WORKDIR /app
@@ -21,7 +21,7 @@ RUN npm run build
 # ------------------------------------------------------------
 # 2️⃣ Production stage - serve the built files
 # ------------------------------------------------------------
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Set working directory
 WORKDIR /app
